@@ -1,2 +1,5 @@
 H,target,algo,param,value,best_n_trees,val_mae_w,val_rmse_w,fit_seconds
 5,y_next,lightgbm,num_leaves,31,1995,225.98,444.28,96.5
+5,y_next,lightgbm,num_leaves,63,1537,225.57,443.47,111.8
+5,y_next,lightgbm,num_leaves,127,319,225.43,443.95,44.4
+5,y_next,xgboost,max_depth,6,1365,226.5,444.16,158.0
