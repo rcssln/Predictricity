@@ -115,6 +115,46 @@ persistence, same-time-yesterday and 15-minute moving average, for H = 5, 10, 15
 and both targets. **Persistence is the baseline to beat** (e.g. H = 10, `y_next`:
 MAE 331.3 W, RMSE 655.2 W).
 
+## Step 8. Train and tune LightGBM and XGBoost
+
+```bash
+python models/train_demand.py
+```
+
+Takes about an hour (36 fits on ~1.6M training rows). For each H in 5, 10, 15 and each
+target (`y_next`, `y_peak`):
+
+- Builds float32 features and targets, splits with `make_splits()`. **The test set is not used.**
+- Trains LightGBM (`num_leaves` 31, 63, 127) and XGBoost (`max_depth` 6, 8, 10), up to
+  2,000 trees at learning rate 0.03, with early stopping on validation MAE (patience 100).
+- Keeps the setting with the lowest validation MAE for each algorithm.
+
+Outputs:
+
+- `results/tables/step08_tuning_log.csv`: every setting with its tree count, validation
+  MAE/RMSE (W) and fit time.
+- `models/artifacts/{algo}_{target}_{H}.joblib`: the best model per algorithm, target and H,
+  saved as a dict with `model`, `features`, `H`, `target`, `params`, `best_n_trees`,
+  `val_mae_w`, `val_rmse_w` and the train/val start and end dates and row counts
+  (12 files, ~180 MB in total).
+
+Best validation MAE (W) vs persistence:
+
+| H | Target | LightGBM | XGBoost | Persistence |
+|---|---|---|---|---|
+| 5 | `y_next` | 225.4 | **224.7** | 226.9 |
+| 5 | `y_peak` | 209.0 | 209.0 | **175.4** |
+| 10 | `y_next` | 308.5 | **307.6** | 331.3 |
+| 10 | `y_peak` | 322.3 | 321.6 | **286.9** |
+| 15 | `y_next` | 352.9 | **352.3** | 396.1 |
+| 15 | `y_peak` | 402.9 | 402.2 | **385.1** |
+
+The models beat persistence on `y_next`, and the gap grows with H. On `y_peak` they lose
+on MAE but win on RMSE (e.g. H = 5: 404.6 vs 437.6 W). This is probably because they are
+trained on squared error. The largest setting in each grid usually won. These validation
+scores are optimistic because the same data drove early stopping and model selection;
+the test set gives the unbiased estimate.
+
 ---
 
 ## Quick reproduce (everything, in order)
@@ -128,6 +168,7 @@ python -m nbconvert --to notebook --execute --inplace notebooks/step04_explore.i
 python -m pytest tests
 python pipeline/split.py 10
 python models/baselines.py
+python models/train_demand.py
 ```
 
 ## Files that make up the study
@@ -141,6 +182,7 @@ python models/baselines.py
 | `pipeline/targets.py` | `add_targets()`: `y_next_H`, `y_peak_H` (future-only) |
 | `pipeline/split.py` | Step 6: `make_splits()` chronological split |
 | `models/baselines.py` | Step 7: baseline scores on validation |
+| `models/train_demand.py` | Step 8: tune LightGBM / XGBoost on validation, save best models |
 | `tests/test_leakage.py`, `tests/test_split.py` | Step 5: leakage and split proofs |
 
 ## Early prototype (simulated data, not part of the study)

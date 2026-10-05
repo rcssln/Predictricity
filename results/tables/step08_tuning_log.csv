@@ -3,3 +3,7 @@ H,target,algo,param,value,best_n_trees,val_mae_w,val_rmse_w,fit_seconds
 5,y_next,lightgbm,num_leaves,63,1537,225.57,443.47,111.8
 5,y_next,lightgbm,num_leaves,127,319,225.43,443.95,44.4
 5,y_next,xgboost,max_depth,6,1365,226.5,444.16,158.0
+5,y_next,xgboost,max_depth,8,456,225.51,443.21,91.9
+5,y_next,xgboost,max_depth,10,377,224.7,442.63,118.7
+5,y_peak,lightgbm,num_leaves,31,1477,209.38,405.3,72.3
+5,y_peak,lightgbm,num_leaves,63,1051,209.11,405.15,59.2
