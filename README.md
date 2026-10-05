@@ -1,15 +1,5 @@
 # Predictricity
 
-Short-horizon household load forecasting for peak-aware load shedding.
-
-The study uses the **UCI Individual Household Electric Power Consumption** dataset
-(one French household, 1-minute readings, Dec 2006 – Nov 2010) to forecast
-**the load H minutes ahead** (`y_next_H`) and **the peak load over the next H minutes**
-(`y_peak_H`) for H = 5, 10 and 15. Every result in `results/` can be regenerated
-by following the steps below in order.
-
----
-
 ## Step 0. Set up Python
 
 Requires Python 3.12+ (developed on 3.14). From the project root:
