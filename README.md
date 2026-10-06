@@ -329,7 +329,28 @@ does not; the two predictive policies differ.
 
 ---
 
-## Quick reproduce (everything, in order)
+## Step 13. Reproduce every table and figure with one command
+
+```bash
+pip install -r requirements.txt
+# place data/raw/household_power_consumption.txt first (Step 1)
+python run_initial_results.py --skip-training   # reuse the 12 saved models: about 1.5 min
+python run_initial_results.py                   # retrain too: about 2.5 h on an 8 GB laptop
+```
+
+`run_initial_results.py` runs Steps 2, 3, 6, 7, 8, 9, 10, 11 and 12 in order and stops at
+the first failure. It rebuilds everything in `results/tables/` and `results/figures/`, plus
+`results/handoff/` and `data/processed/`. The test set is only re-scored with the frozen
+models and settings, so nothing is tuned. Checked on 2026-10-06 from an empty
+`data/processed/` with `--skip-training`: every committed table and figure came out
+byte-identical, and so did the regenerated data files.
+
+Not included: Step 4's notebook (exploration only) and the Step 5 tests; run them with
+`python -m nbconvert --to notebook --execute --inplace notebooks/step04_explore.ipynb` and
+`python -m pytest tests`. The one-page summary for the adviser is
+`docs/initial_results_summary.md`.
+
+### Step by step (the same, by hand)
 
 ```bash
 pip install -r requirements.txt
@@ -353,6 +374,8 @@ python sim/run_policies.py
 
 | File | Role |
 |---|---|
+| `run_initial_results.py` | Step 13: rebuild every table and figure with one command |
+| `docs/initial_results_summary.md` | Step 13: one-page summary for the adviser |
 | `pipeline/clean_uci.py` | Step 2: raw UCI → clean 1-minute parquet |
 | `pipeline/check_uci.py` | Step 3: data summary table |
 | `notebooks/step04_explore.ipynb` | Step 4: exploratory figures |
