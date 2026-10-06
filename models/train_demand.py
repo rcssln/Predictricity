@@ -4,7 +4,9 @@ For each H in (5, 10, 15) and target in (y_next, y_peak):
     - build features (pipeline/features.py) and targets (pipeline/targets.py)
     - split with pipeline/split.py make_splits()  -- the test set is never used
     - LightGBM: num_leaves in (31, 63, 127); XGBoost: max_depth in (6, 8, 10)
-      2000 trees max, learning rate 0.03, early stopping on validation MAE
+      each with squared-error and absolute-error objectives
+      2000 trees max, learning rate 0.03, subsample and colsample 0.8,
+      early stopping on validation MAE
     - keep the setting with the best validation MAE per algorithm
 
 Outputs:
@@ -16,8 +18,11 @@ Note: early stopping and model selection both use the validation set, so the
 validation scores here are optimistic; the held-out test set gives the unbiased
 estimate later.
 
-Run from anywhere (takes a while: 36 fits on ~1.6M rows):
+Run from anywhere (takes a while: 72 fits on ~1.6M rows):
     python models/train_demand.py
+To continue an interrupted run, keeping finished H / target / algorithm groups
+(a group cut off partway is redone in full):
+    python models/train_demand.py --resume
 """
 
 import os
@@ -53,9 +58,15 @@ N_ESTIMATORS = 2000
 LEARNING_RATE = 0.03
 EARLY_STOPPING_ROUNDS = 100
 SEED = 42
+SUBSAMPLE = 0.8
+COLSAMPLE = 0.8
+# Squared error pulls forecasts of spiky targets (y_peak) upward and costs MAE,
+# so the absolute-error objective is tried alongside it.
 GRID = {
-    "lightgbm": [{"num_leaves": n} for n in (31, 63, 127)],
-    "xgboost": [{"max_depth": d} for d in (6, 8, 10)],
+    "lightgbm": [{"objective": o, "num_leaves": n}
+                 for o in ("l2", "l1") for n in (31, 63, 127)],
+    "xgboost": [{"objective": o, "max_depth": d}
+                for o in ("reg:squarederror", "reg:absoluteerror") for d in (6, 8, 10)],
 }
 
 
@@ -63,11 +74,12 @@ def make_model(algo, params):
     if algo == "lightgbm":
         return lgb.LGBMRegressor(
             n_estimators=N_ESTIMATORS, learning_rate=LEARNING_RATE, metric="l1",
+            subsample=SUBSAMPLE, subsample_freq=1, colsample_bytree=COLSAMPLE,
             random_state=SEED, verbose=-1, **params,
         )
     return xgb.XGBRegressor(
         n_estimators=N_ESTIMATORS, learning_rate=LEARNING_RATE, tree_method="hist",
-        eval_metric="mae", early_stopping_rounds=EARLY_STOPPING_ROUNDS,
+        subsample=SUBSAMPLE, colsample_bytree=COLSAMPLE, eval_metric="mae", early_stopping_rounds=EARLY_STOPPING_ROUNDS,
         random_state=SEED, **params,
     )
 
@@ -94,7 +106,16 @@ def append_log(row):
 def main():
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
     ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
-    LOG_PATH.unlink(missing_ok=True)
+    done = set()
+    if "--resume" in sys.argv and LOG_PATH.exists():
+        log = pd.read_csv(LOG_PATH)
+        counts = log.groupby(["H", "target", "algo"]).size()
+        done = {k for k, n in counts.items() if n == len(GRID[k[2]])}
+        keep = [k in done for k in zip(log["H"], log["target"], log["algo"])]
+        log[keep].to_csv(LOG_PATH, index=False)
+        print(f"Resuming: {len(done)} finished groups kept, {sum(keep)} log rows\n")
+    else:
+        LOG_PATH.unlink(missing_ok=True)
 
     load = pd.read_parquet(DATA_PATH)
     features = add_features(load).astype("float32")
@@ -118,6 +139,9 @@ def main():
         for target in TARGETS:
             y_train, y_val = ys[target]
             for algo, grid in GRID.items():
+                if (H, target, algo) in done:
+                    print(f"H={H:<2} {target:<6} {algo:<8} already done, skipped\n", flush=True)
+                    continue
                 best = None
                 for params in grid:
                     t0 = time.perf_counter()
@@ -128,13 +152,14 @@ def main():
                     rmse = float(np.sqrt(np.mean((pred - y_val) ** 2)))
                     secs = time.perf_counter() - t0
 
-                    (name, value), = params.items()
+                    objective, (name, value) = params["objective"], list(params.items())[1]
                     append_log({
-                        "H": H, "target": target, "algo": algo, "param": name, "value": value,
+                        "H": H, "target": target, "algo": algo, "objective": objective,
+                        "param": name, "value": value,
                         "best_n_trees": n_trees, "val_mae_w": round(mae, 2),
                         "val_rmse_w": round(rmse, 2), "fit_seconds": round(secs, 1),
                     })
-                    print(f"H={H:<2} {target:<6} {algo:<8} {name}={value:<4} "
+                    print(f"H={H:<2} {target:<6} {algo:<8} {objective:<17} {name}={value:<4} "
                           f"trees={n_trees:<5} val MAE={mae:7.2f} W  RMSE={rmse:7.2f} W  ({secs:.0f}s)",
                           flush=True)
                     if best is None or mae < best["val_mae_w"]:
@@ -159,7 +184,7 @@ def main():
     print(f"Saved {display(LOG_PATH)} ({len(log)} settings)")
     best = log.loc[log.groupby(["H", "target", "algo"])["val_mae_w"].idxmin()]
     print("\nBest per H / target / algorithm (validation):")
-    print(best[["H", "target", "algo", "param", "value", "best_n_trees",
+    print(best[["H", "target", "algo", "objective", "param", "value", "best_n_trees",
                 "val_mae_w", "val_rmse_w"]].to_string(index=False))
 
 if __name__ == "__main__":

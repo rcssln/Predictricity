@@ -121,13 +121,19 @@ MAE 331.3 W, RMSE 655.2 W).
 python models/train_demand.py
 ```
 
-Takes about an hour (36 fits on ~1.6M training rows). For each H in 5, 10, 15 and each
-target (`y_next`, `y_peak`):
+Takes about 2.5 hours on an 8 GB laptop (72 fits on ~1.6M training rows). For each H in
+5, 10, 15 and each target (`y_next`, `y_peak`):
 
 - Builds float32 features and targets, splits with `make_splits()`. **The test set is not used.**
-- Trains LightGBM (`num_leaves` 31, 63, 127) and XGBoost (`max_depth` 6, 8, 10), up to
-  2,000 trees at learning rate 0.03, with early stopping on validation MAE (patience 100).
+- Trains LightGBM (`num_leaves` 31, 63, 127) and XGBoost (`max_depth` 6, 8, 10), each with a
+  squared-error and an absolute-error objective (`l2`/`l1`, `reg:squarederror`/`reg:absoluteerror`),
+  up to 2,000 trees at learning rate 0.03, row and column subsampling 0.8, with early stopping
+  on validation MAE (patience 100).
 - Keeps the setting with the lowest validation MAE for each algorithm.
+
+If a run is interrupted (for example by running out of memory), continue it with
+`python models/train_demand.py --resume`. Finished H / target / algorithm groups are kept, and
+a group cut off partway is redone in full.
 
 Outputs:
 
@@ -136,24 +142,27 @@ Outputs:
 - `models/artifacts/{algo}_{target}_{H}.joblib`: the best model per algorithm, target and H,
   saved as a dict with `model`, `features`, `H`, `target`, `params`, `best_n_trees`,
   `val_mae_w`, `val_rmse_w` and the train/val start and end dates and row counts
-  (12 files, ~180 MB in total).
+  (12 files, ~365 MB in total).
 
 Best validation MAE (W) vs persistence:
 
 | H | Target | LightGBM | XGBoost | Persistence |
 |---|---|---|---|---|
-| 5 | `y_next` | 225.4 | **224.7** | 226.9 |
-| 5 | `y_peak` | 209.0 | 209.0 | **175.4** |
-| 10 | `y_next` | 308.5 | **307.6** | 331.3 |
-| 10 | `y_peak` | 322.3 | 321.6 | **286.9** |
-| 15 | `y_next` | 352.9 | **352.3** | 396.1 |
-| 15 | `y_peak` | 402.9 | 402.2 | **385.1** |
+| 5 | `y_next` | 202.9 | **201.5** | 226.9 |
+| 5 | `y_peak` | **168.2** | 170.3 | 175.4 |
+| 10 | `y_next` | **274.7** | 275.1 | 331.3 |
+| 10 | `y_peak` | **264.7** | 267.3 | 286.9 |
+| 15 | `y_next` | **314.7** | 315.9 | 396.1 |
+| 15 | `y_peak` | **340.5** | 344.4 | 385.1 |
 
-The models beat persistence on `y_next`, and the gap grows with H. On `y_peak` they lose
-on MAE but win on RMSE (e.g. H = 5: 404.6 vs 437.6 W). This is probably because they are
-trained on squared error. The largest setting in each grid usually won. These validation
-scores are optimistic because the same data drove early stopping and model selection;
-the test set gives the unbiased estimate.
+The models now beat persistence on both targets at every H. The absolute-error objective won
+in all 12 groups: squared error pulls forecasts of the spiky load upward and costs MAE (an
+earlier squared-error-only grid lost to persistence on `y_peak`). The gain over persistence
+grows with H (`y_next`: 11% at H = 5, 21% at H = 15) and is smallest for `y_peak` at H = 5
+(4%). The trade-off is RMSE: absolute-error models aim at the median and miss large spikes by
+more, e.g. H = 15 `y_peak` LightGBM RMSE 676.8 W vs 638.2 W for squared-error
+XGBoost at depth 8. These validation scores are optimistic because the same data drove early stopping
+and model selection; the test set gives the unbiased estimate.
 
 ---
 
