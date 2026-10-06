@@ -203,6 +203,25 @@ and XGBoost are within 1% of each other; XGBoost has the lower RMSE in every cas
 
 ---
 
+## Step 10. Forecasting figures
+
+```bash
+python models/plots.py
+```
+
+Draws Chapter 4's four forecasting figures from the Step 9 test predictions and the saved
+H = 10 LightGBM `y_peak` model (for feature importance). Nothing is refit. Saved to
+`results/figures/`, with 2–3 sentence captions in `results/figures/step10_captions.md`:
+
+| Figure | Shows |
+|---|---|
+| `step10_pred_vs_actual.png` | Actual load vs the H = 10 LightGBM `y_next` forecast on a median-error weekday and weekend day |
+| `step10_feature_importance.png` | Top 15 LightGBM features by gain, H = 10, `y_peak` (`now` + `lag_1` hold 83%) |
+| `step10_error_by_hour.png` | MAE by hour of day, LightGBM vs persistence, H = 10 (LightGBM lower in every hour) |
+| `step10_error_by_horizon.png` | MAE at H = 5, 10, 15 for both models and the baselines |
+
+---
+
 ## Quick reproduce (everything, in order)
 
 ```bash
@@ -216,6 +235,7 @@ python pipeline/split.py 10
 python models/baselines.py
 python models/train_demand.py
 python models/evaluate.py
+python models/plots.py
 ```
 
 ## Files that make up the study
@@ -231,6 +251,7 @@ python models/evaluate.py
 | `models/baselines.py` | Step 7: baseline scores on validation |
 | `models/train_demand.py` | Step 8: tune LightGBM / XGBoost on validation, save best models |
 | `models/evaluate.py` | Step 9: score everything on the test set once (Table 4.1) |
+| `models/plots.py` | Step 10: the four forecasting figures |
 | `tests/test_leakage.py`, `tests/test_split.py` | Step 5: leakage and split proofs |
 
 ## Early prototype (simulated data, not part of the study)
