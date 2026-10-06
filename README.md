@@ -264,6 +264,71 @@ precision 44%).
 
 ---
 
+## Step 12. Load-shedding policies in simulation (preliminary)
+
+```bash
+pip install -r requirements.txt        # adds scipy and pyyaml
+python sim/solar_model.py              # 12.2: modeled solar, example-day plot
+python sim/replay.py                   # 12.2: demand replay on the testbed zones, example-day plot
+python sim/run_policies.py             # 12.3: four policies over every complete test day
+```
+
+All settings are in `sim/config.yaml` (report every value in Chapter 3). Demand is the UCI
+test-period load scaled so its 99th percentile is 110 W, replayed on the testbed's four
+switched zones (critical 25 W, never shed; zones A 40 W, B 20 W, C 25 W). Each minute the
+replay picks the zone combination closest to the scaled demand, with critical first.
+Solar is a **modeled** 80 W half-sine with a smooth random cloud factor, so the results are
+preliminary until the real panel log exists. Each day starts at 60% of a 43 Wh battery.
+
+The four policies use the same shedding rules (shed zone C, then A, then B until the need
+fits the budget; restore one zone after 3 minutes with 10 W to spare; shed everything when
+the battery is empty). Only the information differs:
+
+| Policy | Need | Supply |
+|---|---|---|
+| No control | – | – |
+| Reactive | current demand | current solar + battery allowance |
+| Predictive, demand only | H = 10 LightGBM peak forecast | current solar + battery allowance |
+| Predictive, demand + solar | H = 10 LightGBM peak forecast | clear-sky persistence solar forecast + allowance |
+
+Outputs: `results/tables/step12_per_day.csv`, `step12_table_4_3_preliminary.md` (Table 4.3),
+`step12_sensitivity.md` (Table 4.3b), `step12_wilcoxon.csv` (paired by day), and
+`results/figures/step12_solar_example_days.png`, `step12_replay_example_day.png`,
+`step12_soc_sample_day.png`.
+
+Table 4.3 (136 complete test days, testbed settings):
+
+| Policy | Battery-empty min/day | Early warning | Lead (min) | Shed precision | Comfort cost (zone-min/day) | Critical interruptions |
+|---|---|---|---|---|---|---|
+| No control | 488.8 | 0.0% | 0 | – | 0.0 | 0 |
+| Reactive | 409.4 | 0.7% | 6 | 75.0% | 390.9 | 0 |
+| Predictive, demand only | 407.3 | 7.0% | 2 | 57.8% | 393.4 | 0 |
+| Predictive, demand + solar | **407.1** | **7.5%** | 2 | 58.7% | 393.3 | 0 |
+
+- **The battery is the bottleneck.** The 43 Wh battery cannot carry evening and night
+  demand (about 195 Wh from 18:00 to 24:00, over four times its capacity), so every day has battery-empty minutes under
+  every policy, and a larger array does not change that. Shedding cuts battery-empty time
+  by 16–17% (489 to 407–409 min/day, Wilcoxon p < 0.001).
+- **Predictive beats reactive, but only slightly here:** 2.1–2.3 fewer battery-empty
+  minutes per day (p < 0.001), and it starts shedding 1–10 minutes before 7–7.5% of
+  deficits against 0.7% for reactive. The cost is more false shedding (precision 58–59%
+  vs 75%) and about 2.5 more zone-minutes of comfort cost per day.
+- **The solar forecast adds almost nothing** (demand + solar vs demand only:
+  p = 0.50 on battery-empty minutes).
+- Reactive's 0.7% early warning comes entirely from its own battery reaching empty: the
+  cutoff rule then sheds everything a few minutes before the No-control run's deficit.
+- With a larger battery and array (86 Wh, 120 W, Table 4.3b), the ranking is the same and
+  predictive warns before 11–12% of deficits.
+
+Early warning counts a shedding episode that *starts* 1–10 minutes before a deficit event;
+shedding that was already on for hours is not a warning. Deficit events come from the
+No-control run (demand above solar + allowance after 10 minutes without a deficit) and are
+the same for every policy. Checks (12.4): no critical interruptions; No control has the most
+battery-empty minutes; predictive policies warn ahead (lead 2 min) and reactive essentially
+does not; the two predictive policies differ.
+
+---
+
 ## Quick reproduce (everything, in order)
 
 ```bash
@@ -279,6 +344,9 @@ python models/train_demand.py
 python models/evaluate.py
 python models/plots.py
 python models/early_warning.py
+python sim/solar_model.py
+python sim/replay.py
+python sim/run_policies.py
 ```
 
 ## Files that make up the study
@@ -296,6 +364,9 @@ python models/early_warning.py
 | `models/evaluate.py` | Step 9: score everything on the test set once (Table 4.1) |
 | `models/plots.py` | Step 10: the four forecasting figures |
 | `models/early_warning.py` | Step 11: predictive vs reactive spike alerts (Table 4.2) |
+| `sim/config.yaml`, `sim/config.py` | Step 12: every simulation setting, and the loader |
+| `sim/solar_model.py`, `sim/replay.py` | Step 12.2: modeled solar; demand replay on the zones |
+| `sim/battery.py`, `sim/run_policies.py` | Step 12.3: battery model; four-policy simulation (Table 4.3) |
 | `tests/test_leakage.py`, `tests/test_split.py` | Step 5: leakage and split proofs |
 | `tests/test_early_warning.py` | Step 11: event and alert measures on known series |
 

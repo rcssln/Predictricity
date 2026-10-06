@@ -1,0 +1,26 @@
+# sim/config.yaml: every setting of the Step 12 policy simulation (report all in Chapter 3)
+forecast_file: results/handoff/step09_test_preds.parquet
+zones:                       # same as the testbed
+  critical: {watts: 25, priority: 0, sheddable: false}
+  zoneA:    {watts: 40, priority: 3, sheddable: true}
+  zoneB:    {watts: 20, priority: 2, sheddable: true}
+  zoneC:    {watts: 25, priority: 4, sheddable: true}
+demand_p99_w: 110            # scaled UCI demand: its 99th percentile = all zones on
+battery_usable_wh: 43        # half of a 12 V 7.2 Ah battery
+battery_start_pct: 60        # every day starts here, so days are comparable
+battery_allowance_w: {above_60: 60, above_40: 35, else: 10}
+charge_eff: 0.85             # panel -> battery
+inverter_eff: 0.85           # battery -> loads
+solar_peak_w: 80             # modeled array, sized so daily solar roughly matches daily demand
+sunrise: "06:00"
+sunset: "18:00"
+overcast_day_share: 0.15     # share of days that are fully overcast (cloud factor 0.2-0.4)
+cloud_step_sd: 0.03          # minute-to-minute step of the cloud factor random walk
+horizon_min: 10
+min_switch_min: 1
+restore_after_min: 3
+restore_margin_w: 10
+seed: 42
+sensitivity:                 # Table 4.3b: the same run with more energy headroom
+  battery_usable_wh: 86      # the whole 12 V 7.2 Ah battery
+  solar_peak_w: 120

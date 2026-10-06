@@ -1,0 +1,13 @@
+measure,policy_a,policy_b,mean_a,mean_b,median_diff,n_days_differ,statistic,p_value
+battery_empty_min,no_control,reactive,488.75,409.404412,51.5,116,0.0,0.0
+battery_empty_min,no_control,pred_demand,488.75,407.286765,55.0,118,0.0,0.0
+battery_empty_min,no_control,pred_both,488.75,407.139706,54.0,118,0.0,0.0
+battery_empty_min,reactive,pred_demand,409.404412,407.286765,0.0,61,236.5,0.0
+battery_empty_min,reactive,pred_both,409.404412,407.139706,0.0,62,229.5,0.0
+battery_empty_min,pred_demand,pred_both,407.286765,407.139706,0.0,32,228.5,0.502759
+comfort_cost_min,no_control,reactive,0.0,390.919118,-345.5,136,0.0,0.0
+comfort_cost_min,no_control,pred_demand,0.0,393.426471,-340.5,136,0.0,0.0
+comfort_cost_min,no_control,pred_both,0.0,393.308824,-340.5,136,0.0,0.0
+comfort_cost_min,reactive,pred_demand,390.919118,393.426471,-1.0,100,683.5,0.0
+comfort_cost_min,reactive,pred_both,390.919118,393.308824,-1.0,101,854.5,0.0
+comfort_cost_min,pred_demand,pred_both,393.426471,393.308824,0.0,41,337.5,0.219338

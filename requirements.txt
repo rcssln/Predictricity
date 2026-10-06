@@ -10,3 +10,5 @@ nbconvert>=7.16
 ipykernel>=6.29
 pytest>=8.0
 xgboost>=3.0
+scipy>=1.14
+pyyaml>=6.0
