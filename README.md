@@ -164,6 +164,43 @@ more, e.g. H = 15 `y_peak` LightGBM RMSE 676.8 W vs 638.2 W for squared-error
 XGBoost at depth 8. These validation scores are optimistic because the same data drove early stopping
 and model selection; the test set gives the unbiased estimate.
 
+## Step 9. Score the test set once
+
+```bash
+python models/evaluate.py --check-val   # optional: reruns validation, saves nothing
+python models/evaluate.py
+```
+
+Scores the five predictors (three baselines, the best LightGBM and the best XGBoost) on the
+test set (Jul–Nov 2010) for each H and target. All five are scored on the same test minutes
+(~199,000 per H). `--check-val` runs the same code on validation and reproduces the Step 7
+and Step 8 numbers exactly; it was run first, so the test set was scored only once.
+**After this step the models are frozen: no more tuning.**
+
+Outputs:
+
+- `results/tables/step09_table_4_1.csv` and `.md`: MAE, RMSE (W) and skill vs persistence
+  (1 − MAE_model / MAE_persistence) for every H, target and predictor (Table 4.1).
+- `data/processed/step09_test_preds.parquet`: every test prediction, for Steps 10 and 11.
+- `results/handoff/step09_test_preds.parquet`: every test minute (220,320) with `load_w`,
+  `y_peak_10`, `yhat_peak_10_lgbm`, `yhat_peak_10_xgb`, for the Step 12 simulation. Minutes
+  with missing data are NaN (8.4% of `load_w`, 9.7% of the forecasts).
+
+Test MAE (W), best baseline (persistence) vs the models:
+
+| H | Target | Persistence | LightGBM | XGBoost | Best skill |
+|---|---|---|---|---|---|
+| 5 | `y_next` | 221.2 | 192.7 | **191.3** | 13.5% |
+| 5 | `y_peak` | 163.8 | **156.3** | 158.7 | 4.6% |
+| 10 | `y_next` | 316.4 | **257.1** | 258.1 | 18.8% |
+| 10 | `y_peak` | 270.4 | **247.4** | 250.2 | 8.5% |
+| 15 | `y_next` | 369.7 | **292.4** | 294.7 | 20.9% |
+| 15 | `y_peak` | 364.6 | **319.4** | 323.7 | 12.4% |
+
+Both models beat every baseline at every H on the test set, by a little more than on
+validation. The gain grows with H, and is smallest for `y_peak` at H = 5 (4.6%). LightGBM
+and XGBoost are within 1% of each other; XGBoost has the lower RMSE in every case.
+
 ---
 
 ## Quick reproduce (everything, in order)
@@ -178,6 +215,7 @@ python -m pytest tests
 python pipeline/split.py 10
 python models/baselines.py
 python models/train_demand.py
+python models/evaluate.py
 ```
 
 ## Files that make up the study
@@ -192,6 +230,7 @@ python models/train_demand.py
 | `pipeline/split.py` | Step 6: `make_splits()` chronological split |
 | `models/baselines.py` | Step 7: baseline scores on validation |
 | `models/train_demand.py` | Step 8: tune LightGBM / XGBoost on validation, save best models |
+| `models/evaluate.py` | Step 9: score everything on the test set once (Table 4.1) |
 | `tests/test_leakage.py`, `tests/test_split.py` | Step 5: leakage and split proofs |
 
 ## Early prototype (simulated data, not part of the study)
