@@ -222,6 +222,48 @@ H = 10 LightGBM `y_peak` model (for feature importance). Nothing is refit. Saved
 
 ---
 
+## Step 11. Early warning of demand spikes
+
+```bash
+python -m pytest tests/test_early_warning.py   # hand-made series with known event starts
+python models/early_warning.py --check-val     # optional: validation sweep only
+python models/early_warning.py
+```
+
+A spike event is load rising above T = 3,378 W (the 95th percentile of training load)
+after at least 10 minutes at or below it. Events are found on the full 1-minute series, so
+a gap never creates a fake event start. Two alert rules are compared on the same minutes
+and events:
+
+- **Reactive:** current load > T. It can never warn before a spike starts.
+- **Predictive:** the H = 10 LightGBM `y_peak` forecast > T − margin.
+
+The margin is chosen on validation by best F1 over 0–50% of T in 2.5% steps, then the test
+set is scored once. Recall counts only alerts 1–10 minutes *before* a spike, so it equals
+the early-warning rate. An alert at the start minute is not counted: the forecast made then
+already sees the high load and exceeds T for every event, which would make recall 100% at
+any margin and push F1 to a margin of 0. "Detection recall" (alerts 0–10 min before) is
+also reported.
+
+Outputs: `results/tables/step11_margin_sweep_val.csv` (every margin, validation),
+`results/tables/step11_early_warning.md` (Table 4.2, test) and
+`results/figures/step11_precision_recall.png` (precision vs recall across margins,
+validation).
+
+Test set (Jul–Nov 2010, 425 events), margin 12.5% of T = 422 W:
+
+| Rule | Early-warning rate | Median lead time (min) | Precision | F1 |
+|---|---|---|---|---|
+| Reactive (load > T now) | 0.0% | 0 | 51.8% | 0.00 |
+| Predictive (forecast peak > T − 422 W) | **57.9%** | **3** | 41.1% | **0.48** |
+
+The predictive rule warns 1–10 minutes ahead of 58% of spikes, with a median lead of
+3 minutes, at the cost of more false alarms (precision 41% vs 52%). Both rules detect
+every spike by its start minute. Test results are close to validation (57% warned,
+precision 44%).
+
+---
+
 ## Quick reproduce (everything, in order)
 
 ```bash
@@ -236,6 +278,7 @@ python models/baselines.py
 python models/train_demand.py
 python models/evaluate.py
 python models/plots.py
+python models/early_warning.py
 ```
 
 ## Files that make up the study
@@ -252,7 +295,9 @@ python models/plots.py
 | `models/train_demand.py` | Step 8: tune LightGBM / XGBoost on validation, save best models |
 | `models/evaluate.py` | Step 9: score everything on the test set once (Table 4.1) |
 | `models/plots.py` | Step 10: the four forecasting figures |
+| `models/early_warning.py` | Step 11: predictive vs reactive spike alerts (Table 4.2) |
 | `tests/test_leakage.py`, `tests/test_split.py` | Step 5: leakage and split proofs |
+| `tests/test_early_warning.py` | Step 11: event and alert measures on known series |
 
 ## Early prototype (simulated data, not part of the study)
 
