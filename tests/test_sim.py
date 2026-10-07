@@ -82,9 +82,13 @@ def test_battery_large_enough_for_all_demand_never_empties(policy):
     assert out["empty"].sum() == 0
 
 
+@pytest.mark.parametrize("battery", [
+    {"battery_start_pct": 0},                                # a normal battery, at 0%
+    {"battery_usable_wh": 1e-9, "battery_start_pct": 100},   # no battery (0 Wh would divide by 0)
+])
 @pytest.mark.parametrize("policy", list(POLICIES))
-def test_empty_battery_and_no_solar_is_empty_whenever_load_is_on(policy):
-    cfg = {**load_config("evening_sized"), "battery_start_pct": 0}
+def test_empty_battery_and_no_solar_is_empty_whenever_load_is_on(policy, battery):
+    cfg = {**load_config("evening_sized"), **battery}
     day = first_day(two_days(pv_w=0.0))
     out = simulate(day, policy, cfg)
     np.testing.assert_array_equal(out["empty"].astype(bool), day["zone_load_w"].to_numpy() > 0)
