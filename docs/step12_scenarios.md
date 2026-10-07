@@ -72,3 +72,18 @@ scenario pass.
 
 Whatever the results show, they will be reported. If Predictive does not beat Reactive in
 scenario B, that is the finding.
+
+## Feasibility result and decision (7 October 2026)
+
+No control only, before any policy was compared:
+
+| Scenario | Days | Days with zero empty minutes | Mean empty min/day |
+|---|---|---|---|
+| A. `original` | 136 | 0 (0.0%) | 488.8 |
+| B. `evening_sized` | 136 | 32 (23.5%) | 205.8 |
+| C. `sunset_full` | 135 | 0 (0.0%) | 505.7 |
+
+B can separate policies. A and C cannot: the battery is empty on every day without control.
+Starting C full at 17:00 does not help, because 43 Wh covers only about the first hour of the
+evening peak. Decision: C is kept as defined, run with the same tables and tests, and reported
+as a scenario that cannot separate policies. No setting was changed to make it pass.
