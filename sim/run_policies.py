@@ -56,6 +56,8 @@ Run from anywhere:
     python sim/run_policies.py                          # default scenario: evening_sized
     python sim/run_policies.py --scenario original
     python sim/run_policies.py --scenario sunset_full
+    python sim/run_policies.py --switching              # min_switch_min 1, 5, 10 on scenario B
+                                                        # -> results/tables/step12_switching_sensitivity.md
 """
 
 import itertools
@@ -460,9 +462,42 @@ def write_original_files(cfg, per_day, leads, traces):
     print("Saved results/figures/step12_soc_sample_day.png")
 
 
+SWITCH_SETTINGS = [1, 5, 10]
+
+
+def run_switching(name="evening_sized"):
+    """Switching sensitivity: the four policies on one scenario with min_switch_min = 1, 5
+    and 10. Reported only; the scenario's own setting is not changed because of it."""
+    base = load_config(name)
+    pct = (lambda x: "–" if np.isnan(x) else f"{x:.1%}")
+    lines = [
+        f"**Table 4.3c (sensitivity). Minimum switch time, {SCENARIO_TITLES[name]}**", "",
+        "| Min switch time (min) | Policy | Battery-empty min/day | Early-warning rate "
+        "| Comfort cost (zone-min/day) | Switches/day |",
+        "|---|---|---|---|---|---|",
+    ]
+    for m in SWITCH_SETTINGS:
+        per_day, leads, traces, _ = run({**base, "min_switch_min": m})
+        for s in summarize(per_day, leads):
+            lines.append(f"| {m} | {POLICIES[s['policy']]} | {s['battery_empty_min']:.1f} "
+                         f"| {pct(s['early_warning_rate'])} | {s['comfort_cost_min']:.1f} "
+                         f"| {s['switches']:.1f} |")
+        print(f"min_switch_min = {m}: {len(traces)} days done", flush=True)
+    lines += ["", f"{len(traces)} complete test days. A zone may not change state within the "
+              "minimum switch time of the controller's last change; every other setting is as "
+              f"in the primary run (min_switch_min = {base['min_switch_min']}), which is kept. "
+              "Means per day; early warning pooled over all deficit events."]
+    md = "\n".join(lines) + "\n"
+    (TABLE_DIR / "step12_switching_sensitivity.md").write_text(md, encoding="utf-8")
+    print("\n" + md + "\nSaved results/tables/step12_switching_sensitivity.md")
+
+
 def main():
     sys.stdout.reconfigure(errors="replace")   # the Windows console cannot print "–"
     args = sys.argv[1:]
+    if "--switching" in args:
+        run_switching()
+        return
     name = (args[args.index("--scenario") + 1] if "--scenario" in args
             else load_config()["default_scenario"])
     cfg, per_day, leads, traces = run_scenario(name)
