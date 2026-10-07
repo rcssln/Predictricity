@@ -1,7 +1,8 @@
 """Step 12.3: simulate the four load-shedding policies over every complete test day.
 
-Every day starts at battery_start_pct and is simulated minute by minute with the same
-rules for every policy; only the information each policy acts on differs:
+Every simulated day (24 h from day_start) starts at battery_start_pct and is simulated
+minute by minute with the same rules for every policy; only the information each policy
+acts on differs:
 
     No control                   nothing is shed
     Reactive                     current demand  vs current solar  + battery allowance
@@ -39,16 +40,22 @@ Measures per day and policy:
     critical interruptions  minutes the controller switched the critical zone off (must be 0)
     switches                zone state changes made by the controller
 
-Outputs:
-    results/tables/step12_per_day.csv
-    results/tables/step12_table_4_3_preliminary.md
-    results/tables/step12_wilcoxon.csv
-    results/figures/step12_soc_sample_day.png
-    results/tables/step12_sensitivity.md   the same policies with the `sensitivity` settings
-                                           (a larger battery and array) from config.yaml
+Scenarios (sim/config.yaml, pre-registered in docs/step12_scenarios.md) override the base
+settings: original (A), evening_sized (B, primary) and sunset_full (C).
+
+Outputs, for the chosen scenario:
+    results/tables/step12_{scenario}_per_day.csv
+    results/tables/step12_{scenario}_table_4_3.md
+    results/tables/step12_{scenario}_wilcoxon.csv   (with Holm-adjusted secondary p-values)
+    results/figures/step12_{scenario}_soc_sample_day.png
+--scenario original also rewrites the first run's files (step12_per_day.csv,
+step12_table_4_3_preliminary.md, step12_wilcoxon.csv, step12_soc_sample_day.png and the
+86 Wh / 120 W step12_sensitivity.md).
 
 Run from anywhere:
-    python sim/run_policies.py
+    python sim/run_policies.py                          # default scenario: evening_sized
+    python sim/run_policies.py --scenario original
+    python sim/run_policies.py --scenario sunset_full
 """
 
 import itertools
@@ -175,32 +182,52 @@ def warning_measures(active, events):
             "n_episodes": len(eps), "n_true_episodes": n_true, "leads": leads}
 
 
+def day_offset(day_start):
+    h, m = map(int, day_start.split(":"))
+    return pd.Timedelta(hours=h, minutes=m)
+
+
+def day_windows(data, day_start, need):
+    """Start times of the simulated days: 1,440 minutes from day_start on each date,
+    kept only when every one of those minutes is in `data` with no missing `need` value."""
+    ok = data[need].notna().all(axis=1)
+    starts = []
+    for date in data.index.normalize().unique():
+        start = date + day_offset(day_start)
+        idx = pd.date_range(start, periods=1440, freq="min")
+        if ok.reindex(idx, fill_value=False).all():
+            starts.append(start)
+    return starts
+
+
 def load_days(cfg):
     data, scale = replay(cfg)
     sol = solar(data.index, cfg)
     data = data.join(sol)
     data["fc_w"] = data["fc_lgbm_w"]
     data["pv_fc_w"] = solar_forecast(data["pv_w"], data["clear_sky_w"], cfg["horizon_min"])
-    need = ["zone_load_w", "fc_w", "pv_w"]
-    complete = data[need].notna().all(axis=1).groupby(data.index.normalize()).all()
-    days = [d for d in complete.index[complete] if (data.index.normalize() == d).sum() == 1440]
-    return data, days, scale
+    starts = day_windows(data, cfg.get("day_start", "00:00"), ["zone_load_w", "fc_w", "pv_w"])
+    return data, starts, scale
 
 
 def run(cfg):
-    """Simulate every policy on every complete test day."""
-    data, days, scale = load_days(cfg)
+    """Simulate every policy on every complete simulated day.
+
+    A day is labelled by the date it starts on; its deficit events, measures and the
+    Wilcoxon pairing all use that 1,440-minute window.
+    """
+    data, starts, scale = load_days(cfg)
     rows, leads, traces = [], {p: [] for p in POLICIES}, {}
-    for day in days:
-        d = data.loc[day: day + pd.Timedelta("1D") - pd.Timedelta("1min")]
+    for start in starts:
+        d = data.loc[start: start + pd.Timedelta("1D") - pd.Timedelta("1min")]
         runs = {p: simulate(d, p, cfg) for p in POLICIES}
         events = starts_after_quiet(runs["no_control"]["deficit"])
-        traces[day] = {p: r["soc_pct"] for p, r in runs.items()}
+        traces[start] = {p: r["soc_pct"] for p, r in runs.items()}
         for p, r in runs.items():
             w = warning_measures(r["shed_k"] > 0, events)
             leads[p] += w.pop("leads")
             rows.append({
-                "date": day.date(), "policy": p,
+                "date": start.date(), "policy": p,
                 "battery_empty_min": int(r["empty"].sum()),
                 "deficit_events": w["n_events"],
                 "early_warning_rate": w["n_warned"] / w["n_events"] if w["n_events"] else np.nan,
@@ -261,43 +288,41 @@ def setting_note(cfg, per_day):
     days = per_day["date"].nunique()
     n_events = int(per_day.loc[per_day["policy"] == "no_control", "n_events"].sum())
     zero = int((per_day.loc[per_day["policy"] == "no_control", "battery_empty_min"] == 0).sum())
+    day_start = cfg.get("day_start", "00:00")
+    when = ("each midnight" if day_start == "00:00" else
+            f"at {day_start} each day (a simulated day runs {day_start} to {day_start} the next "
+            "day, labelled by its start date)")
+    switch = ("" if cfg["min_switch_min"] == 1 else
+              f" Minimum switch time {cfg['min_switch_min']} min.")
     return (
         f"{days} complete test days, battery {cfg['battery_usable_wh']} Wh usable starting "
-        f"at {cfg['battery_start_pct']}% each midnight, modeled solar {cfg['solar_peak_w']} W "
+        f"at {cfg['battery_start_pct']}% {when}, modeled solar {cfg['solar_peak_w']} W "
         "peak (half-sine with random clouds) until the real panel log exists. Without control, "
         f"{zero} of {days} days have no battery-empty minutes. Battery-empty minutes, comfort "
         "cost and switches are means per day; the warning measures are pooled over all "
         f"{n_events:,} deficit events (from the No-control run, the same for every policy) and "
-        "all shedding episodes. Early warning = a shedding episode starts 1–10 min before a "
-        "deficit; shed recall also counts shedding already on at the start minute.")
+        f"all shedding episodes. Early warning = a shedding episode starts 1–10 min before a "
+        f"deficit; shed recall also counts shedding already on at the start minute.{switch}")
 
 
-def main():
-    sys.stdout.reconfigure(errors="replace")   # the Windows console cannot print "–"
-    cfg = load_config()
-    per_day, leads, traces, scale = run(cfg)
-    days = sorted(traces)
-    print(f"{len(days)} complete test days; demand scale {scale:.5f}")
-    TABLE_DIR.mkdir(parents=True, exist_ok=True)
-    per_day.to_csv(TABLE_DIR / "step12_per_day.csv", index=False)
-    summary = summarize(per_day, leads)
-    md = table_md(
-        summary,
-        "**Table 4.3 (preliminary). Load-shedding policies in simulation, testbed settings**",
-        setting_note(cfg, per_day))
-    (TABLE_DIR / "step12_table_4_3_preliminary.md").write_text(md, encoding="utf-8")
+PRIMARY = ("reactive", "pred_demand")   # the pre-registered primary comparison
 
-    # Sensitivity: the same run with a larger battery and array.
-    sens_cfg = {**cfg, **cfg["sensitivity"]}
-    sens_day, sens_leads, _, _ = run(sens_cfg)
-    sens_md = table_md(
-        summarize(sens_day, sens_leads),
-        "**Table 4.3b (sensitivity). The same policies with a larger battery and array "
-        f"({sens_cfg['battery_usable_wh']} Wh, {sens_cfg['solar_peak_w']} W)**",
-        setting_note(sens_cfg, sens_day))
-    (TABLE_DIR / "step12_sensitivity.md").write_text(sens_md, encoding="utf-8")
 
-    # Wilcoxon signed-rank tests, paired by day.
+def holm(p):
+    """Holm-adjusted p-values (NaN stays NaN)."""
+    p = np.asarray(p, dtype=float)
+    out = np.full_like(p, np.nan)
+    ok = np.flatnonzero(~np.isnan(p))
+    order = ok[np.argsort(p[ok])]
+    running = 0.0
+    for rank, i in enumerate(order):
+        running = max(running, min(1.0, (len(order) - rank) * p[i]))
+        out[i] = running
+    return out
+
+
+def wilcoxon_tests(per_day, with_holm):
+    """Wilcoxon signed-rank tests for every pair of policies, paired by simulated day."""
     tests = []
     wide = {m: per_day.pivot(index="date", columns="policy", values=m)
             for m in ["battery_empty_min", "comfort_cost_min"]}
@@ -313,20 +338,31 @@ def main():
                           "median_diff": diff.median(), "n_days_differ": int((diff != 0).sum()),
                           "statistic": stat, "p_value": p})
     tests = pd.DataFrame(tests)
-    tests.round(6).to_csv(TABLE_DIR / "step12_wilcoxon.csv", index=False)
+    if with_holm:
+        # Pre-registered: the primary comparison on battery-empty minutes is tested alone;
+        # every other comparison gets a Holm adjustment within its outcome.
+        tests["primary"] = ((tests["measure"] == "battery_empty_min")
+                            & (tests["policy_a"] == PRIMARY[0]) & (tests["policy_b"] == PRIMARY[1]))
+        tests["p_holm"] = np.nan
+        for m in wide:
+            sec = (tests["measure"] == m) & ~tests["primary"]
+            tests.loc[sec, "p_holm"] = holm(tests.loc[sec, "p_value"])
+    return tests
 
-    # Battery charge on a sample day: the No-control day closest to the median of days that
-    # have any battery-empty minutes (not hand-picked).
+
+def plot_soc(per_day, traces, path, title):
+    """Battery charge on the No-control day closest to the median of days that have any
+    battery-empty minutes (not hand-picked)."""
     nc = per_day[per_day["policy"] == "no_control"].set_index("date")["battery_empty_min"]
     pool = nc[nc > 0] if (nc > 0).any() else nc
     sample = (pool - pool.median()).abs().idxmin()
-    day = pd.Timestamp(sample)
-    idx = pd.date_range(day, periods=1440, freq="min")
+    start = next(s for s in traces if s.date() == sample)
+    idx = pd.date_range(start, periods=1440, freq="min")
     fig, ax = plt.subplots(figsize=(11, 4.2))
     for p, label in POLICIES.items():
         empty = per_day[(per_day["policy"] == p) & (per_day["date"] == sample)][
             "battery_empty_min"].iloc[0]
-        ax.plot(idx, traces[day][p], color=COLORS[p], lw=1.8,
+        ax.plot(idx, traces[start][p], color=COLORS[p], lw=1.8,
                 ls="--" if p == "pred_both" else "-", label=f"{label} ({empty} min empty)")
     ax.set_ylabel("Battery charge (%)")
     ax.set_ylim(-2, 102)
@@ -336,17 +372,14 @@ def main():
     ax.spines[["top", "right"]].set_visible(False)
     ax.grid(color="#e1e0d9")
     ax.legend(frameon=False, loc="upper left", fontsize=9)
-    ax.set_title(f"Battery charge under the four policies, {day:%a %d %b %Y} "
-                 "(median No-control day with battery-empty minutes)", loc="left",
-                 fontsize=11, fontweight="bold")
+    ax.set_title(title.format(day=start), loc="left", fontsize=11, fontweight="bold")
     fig.tight_layout()
     FIG_DIR.mkdir(parents=True, exist_ok=True)
-    fig.savefig(FIG_DIR / "step12_soc_sample_day.png", dpi=200, bbox_inches="tight")
+    fig.savefig(path, dpi=200, bbox_inches="tight")
     plt.close(fig)
 
-    print("\n" + md + "\n" + sens_md)
-    print(tests[["measure", "policy_a", "policy_b", "mean_a", "mean_b", "n_days_differ",
-                 "p_value"]].round(4).to_string(index=False))
+
+def print_checks(summary, per_day):
     print("\nChecks (12.4):")
     s = {r["policy"]: r for r in summary}
     print(f"  critical interruptions all 0: {all(r['critical_interruptions'] == 0 for r in summary)}")
@@ -354,15 +387,87 @@ def main():
           f"{max(s, key=lambda p: s[p]['battery_empty_min']) == 'no_control'}")
     print(f"  reactive lead 0, predictive lead > 0: {s['reactive']['median_lead_min'] == 0} / "
           f"{s['pred_demand']['median_lead_min'] > 0 and s['pred_both']['median_lead_min'] > 0}")
-    same = per_day[per_day.policy == "pred_demand"].reset_index(drop=True)[
-        ["battery_empty_min", "comfort_cost_min", "switches"]].equals(
-        per_day[per_day.policy == "pred_both"].reset_index(drop=True)[
-            ["battery_empty_min", "comfort_cost_min", "switches"]])
+    cols = ["battery_empty_min", "comfort_cost_min", "switches"]
+    same = per_day[per_day.policy == "pred_demand"].reset_index(drop=True)[cols].equals(
+        per_day[per_day.policy == "pred_both"].reset_index(drop=True)[cols])
     print(f"  two predictive policies differ: {not same}")
+
+
+SCENARIO_TITLES = {
+    "original": "scenario A, original (43 Wh, 80 W, 60% at midnight)",
+    "evening_sized": "scenario B, evening-sized (220 Wh, 104 W, 60% at midnight), primary",
+    "sunset_full": "scenario C, sunset-full (43 Wh, 80 W, 100% at 17:00, days 17:00–17:00)",
+}
+
+
+def run_scenario(name):
+    """Run one scenario and write step12_{name}_* tables and figure."""
+    cfg = load_config(name)
+    per_day, leads, traces, scale = run(cfg)
+    print(f"Scenario {name}: {len(traces)} complete simulated days; demand scale {scale:.5f}")
+    summary = summarize(per_day, leads)
+    md = table_md(
+        summary,
+        f"**Table 4.3 (preliminary). Load-shedding policies in simulation, "
+        f"{SCENARIO_TITLES[name]}**",
+        setting_note(cfg, per_day))
+    tests = wilcoxon_tests(per_day, with_holm=True)
+    TABLE_DIR.mkdir(parents=True, exist_ok=True)
+    per_day.to_csv(TABLE_DIR / f"step12_{name}_per_day.csv", index=False)
+    (TABLE_DIR / f"step12_{name}_table_4_3.md").write_text(md, encoding="utf-8")
+    tests.round(6).to_csv(TABLE_DIR / f"step12_{name}_wilcoxon.csv", index=False)
+    plot_soc(per_day, traces, FIG_DIR / f"step12_{name}_soc_sample_day.png",
+             "Battery charge under the four policies, " + SCENARIO_TITLES[name].split(" (")[0]
+             + ", day starting {day:%a %d %b %Y %H:%M} (median No-control day with "
+             "battery-empty minutes)")
+    print("\n" + md)
+    print(tests[["measure", "policy_a", "policy_b", "mean_a", "mean_b", "n_days_differ",
+                 "p_value", "p_holm"]].round(4).to_string(index=False))
+    print_checks(summary, per_day)
+    for f in [f"step12_{name}_per_day.csv", f"step12_{name}_table_4_3.md",
+              f"step12_{name}_wilcoxon.csv"]:
+        print(f"Saved results/tables/{f}")
+    print(f"Saved results/figures/step12_{name}_soc_sample_day.png")
+    return cfg, per_day, leads, traces
+
+
+def write_original_files(cfg, per_day, leads, traces):
+    """The first run's files (scenario A), unchanged: step12_table_4_3_preliminary.md,
+    step12_per_day.csv, step12_wilcoxon.csv, step12_soc_sample_day.png and the 86 Wh / 120 W
+    sensitivity table step12_sensitivity.md."""
+    per_day.to_csv(TABLE_DIR / "step12_per_day.csv", index=False)
+    md = table_md(
+        summarize(per_day, leads),
+        "**Table 4.3 (preliminary). Load-shedding policies in simulation, testbed settings**",
+        setting_note(cfg, per_day))
+    (TABLE_DIR / "step12_table_4_3_preliminary.md").write_text(md, encoding="utf-8")
+    sens_cfg = {**cfg, **cfg["sensitivity"]}
+    sens_day, sens_leads, _, _ = run(sens_cfg)
+    sens_md = table_md(
+        summarize(sens_day, sens_leads),
+        "**Table 4.3b (sensitivity). The same policies with a larger battery and array "
+        f"({sens_cfg['battery_usable_wh']} Wh, {sens_cfg['solar_peak_w']} W)**",
+        setting_note(sens_cfg, sens_day))
+    (TABLE_DIR / "step12_sensitivity.md").write_text(sens_md, encoding="utf-8")
+    wilcoxon_tests(per_day, with_holm=False).round(6).to_csv(
+        TABLE_DIR / "step12_wilcoxon.csv", index=False)
+    plot_soc(per_day, traces, FIG_DIR / "step12_soc_sample_day.png",
+             "Battery charge under the four policies, {day:%a %d %b %Y} "
+             "(median No-control day with battery-empty minutes)")
     for f in ["step12_per_day.csv", "step12_table_4_3_preliminary.md", "step12_wilcoxon.csv",
               "step12_sensitivity.md"]:
         print(f"Saved results/tables/{f}")
     print("Saved results/figures/step12_soc_sample_day.png")
+
+
+def main():
+    sys.stdout.reconfigure(errors="replace")   # the Windows console cannot print "–"
+    args = sys.argv[1:]
+    name = (args[args.index("--scenario") + 1] if "--scenario" in args
+            else load_config()["default_scenario"])
+    cfg, per_day, leads, traces = run_scenario(name)
+    if name == "original":
+        write_original_files(cfg, per_day, leads, traces)
 
 
 if __name__ == "__main__":

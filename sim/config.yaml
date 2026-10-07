@@ -17,10 +17,23 @@ sunset: "18:00"
 overcast_day_share: 0.15     # share of days that are fully overcast (cloud factor 0.2-0.4)
 cloud_step_sd: 0.03          # minute-to-minute step of the cloud factor random walk
 horizon_min: 10
-min_switch_min: 1
+min_switch_min: 1            # default; each scenario below can override it
+day_start: "00:00"           # a simulated day is the 24 h starting at this time
 restore_after_min: 3
 restore_margin_w: 10
 seed: 42
 sensitivity:                 # Table 4.3b: the same run with more energy headroom
   battery_usable_wh: 86      # the whole 12 V 7.2 Ah battery
   solar_peak_w: 120
+default_scenario: evening_sized
+scenarios:                   # docs/step12_scenarios.md; each overrides the settings above
+  original:                  # A: the first run (43 Wh, 80 W, 60% at midnight)
+    min_switch_min: 1
+  evening_sized:             # B, primary: battery sized for the evening, solar = demand
+    battery_usable_wh: 220
+    solar_peak_w: 104        # 80 W x 552.6 / 424.7 Wh/day (mean demand / mean solar at 80 W)
+    min_switch_min: 1
+  sunset_full:               # C: testbed battery, full at 17:00, day runs 17:00 -> 17:00
+    day_start: "17:00"
+    battery_start_pct: 100
+    min_switch_min: 1
