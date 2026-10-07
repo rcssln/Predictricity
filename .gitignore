@@ -5,6 +5,7 @@ data/logs/
 
 # Saved models (regenerate with python models/train_demand.py)
 models/artifacts/
+models/*.pkl
 
 # Python and tooling caches
 __pycache__/

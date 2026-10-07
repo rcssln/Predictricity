@@ -35,7 +35,13 @@ STEPS = [
     ("11", "Early warning (Table 4.2)", ["models/early_warning.py"]),
     ("12", "Modeled solar", ["sim/solar_model.py"]),
     ("12", "Demand replay", ["sim/replay.py"]),
-    ("12", "Policy simulation (Table 4.3)", ["sim/run_policies.py"]),
+    ("12", "Policy simulation, scenario A original (first run's files too)",
+     ["sim/run_policies.py", "--scenario", "original"]),
+    ("12", "Policy simulation, scenario B evening_sized (primary Table 4.3)",
+     ["sim/run_policies.py", "--scenario", "evening_sized"]),
+    ("12", "Policy simulation, scenario C sunset_full",
+     ["sim/run_policies.py", "--scenario", "sunset_full"]),
+    ("12", "Switching sensitivity on scenario B", ["sim/run_policies.py", "--switching"]),
 ]
 
 
