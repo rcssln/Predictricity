@@ -1,0 +1,13 @@
+measure,policy_a,policy_b,mean_a,mean_b,median_diff,n_days_differ,statistic,p_value,primary,p_holm
+battery_empty_min,no_control,reactive,505.651852,426.481481,45.0,115,0.0,0.0,False,0.0
+battery_empty_min,no_control,pred_demand,505.651852,424.244444,47.0,116,0.0,0.0,False,0.0
+battery_empty_min,no_control,pred_both,505.651852,424.051852,47.0,116,0.0,0.0,False,0.0
+battery_empty_min,reactive,pred_demand,426.481481,424.244444,0.0,67,283.5,0.0,True,
+battery_empty_min,reactive,pred_both,426.481481,424.051852,0.0,63,215.5,0.0,False,0.0
+battery_empty_min,pred_demand,pred_both,424.244444,424.051852,0.0,29,183.5,0.457534,False,0.457534
+comfort_cost_min,no_control,reactive,0.0,391.740741,-375.0,135,0.0,0.0,False,0.0
+comfort_cost_min,no_control,pred_demand,0.0,394.762963,-373.0,135,0.0,0.0,False,0.0
+comfort_cost_min,no_control,pred_both,0.0,394.777778,-373.0,135,0.0,0.0,False,0.0
+comfort_cost_min,reactive,pred_demand,391.740741,394.762963,-1.0,97,559.0,0.0,False,0.0
+comfort_cost_min,reactive,pred_both,391.740741,394.777778,-1.0,98,646.0,0.0,False,0.0
+comfort_cost_min,pred_demand,pred_both,394.762963,394.777778,0.0,44,484.5,0.900784,False,0.900784
