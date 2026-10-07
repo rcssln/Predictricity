@@ -1,6 +1,6 @@
 # Predictricity: initial results
 
-*6 October 2026. Every number below comes from `results/tables/`; all of them can be rebuilt with `python run_initial_results.py`.*
+*7 October 2026. Every number below comes from `results/tables/`; all of them can be rebuilt with `python run_initial_results.py`.*
 
 ## 1. Objective
 
@@ -29,9 +29,13 @@ To test whether 5–15 minute household demand forecasts let a small solar–bat
   - **Reactive alert:** the current load exceeds T.
   - **Recall:** counts only alerts 1–10 min *before* a spike.
 - **Policy simulation (preliminary):**
-  - **Setup:** UCI test demand scaled to the testbed's four zones (critical 25 W, never shed; 40, 20 and 25 W sheddable), a 43 Wh battery starting each day at 60%, and modeled solar (an 80 W half-sine with random clouds).
+  - **Setup:** UCI test demand scaled to the testbed's four zones (critical 25 W, never shed; 40, 20 and 25 W sheddable), with modeled solar (a half-sine with random clouds).
   - **Policies:** No control, Reactive, Predictive (demand only) and Predictive (demand + solar). All four use the same shedding rules; only the information they act on differs.
-  - **Data:** 136 complete test days.
+  - **Scenarios**, pre-registered in [docs/step12_scenarios.md](step12_scenarios.md) before they were run:
+    - **B (primary):** a 220 Wh battery starting each midnight at 60%, and a 104 W array.
+    - **A:** the first run, with the testbed's 43 Wh battery and 80 W.
+    - **C:** 43 Wh, starting full at 17:00, with each day running from 17:00 to 17:00.
+  - **Primary comparison:** Predictive (demand only) vs Reactive on battery-empty minutes in B, using a Wilcoxon signed-rank test paired by day.
 
 ## 4. Results
 
@@ -56,30 +60,36 @@ Both models beat every baseline at every horizon. The gain over persistence grow
 
 The forecast warns before 57.9% of spikes, a median of 3 min ahead, in exchange for more false alarms.
 
-**Table 4.3 (preliminary, simulation, 136 days).**
+**Table 4.3 (PRELIMINARY: solar is modeled). Policy simulation, scenario B, 136 days.**
 
-| Policy | Battery-empty min/day | Early warning | Shed precision | Comfort cost (zone-min/day) | Critical interruptions |
-|---|---|---|---|---|---|
-| No control | 488.8 | 0.0% | – | 0.0 | 0 |
-| Reactive | 409.4 | 0.7% | 75.0% | 390.9 | 0 |
-| Predictive, demand | 407.3 | 7.0% | 57.8% | 393.4 | 0 |
-| Predictive, demand + solar | 407.1 | 7.5% | 58.7% | 393.3 | 0 |
+| Policy | Battery-empty min/day | Early warning | Shed precision | Comfort cost (zone-min/day) | Switches/day | Critical interruptions |
+|---|---|---|---|---|---|---|
+| No control | 205.8 | 0.0% | – | 0.0 | 0.0 | 0 |
+| Reactive | 110.1 | 0.3% | 70.6% | 249.6 | 86.9 | 0 |
+| Predictive, demand | **103.1** | **15.6%** | 61.3% | 260.1 | 75.5 | 0 |
+| Predictive, demand + solar | 103.3 | 15.4% | 61.1% | 259.5 | 75.8 | 0 |
 
-- **Shedding cuts empty-battery time by 16–17%** (Wilcoxon, p < 0.001).
-- **Predictive policies beat reactive by 2.1–2.3 min/day** (p < 0.001), and act ahead of more deficits.
-- **The solar forecast adds nothing measurable** (p = 0.50).
-- **With a larger battery and array** (86 Wh, 120 W), the ranking is unchanged.
+- **Primary result: predictive beats reactive.** Battery-empty minutes are 103.1 vs 110.1 per day (Wilcoxon, p < 0.001); the two differ on 70 of 136 days.
+- **The cost is comfort:** predictive sheds more (260.1 vs 249.6 zone-min/day, Holm-adjusted p < 0.001) and its shedding is less precise (61.3% vs 70.6%). It also starts shedding before more deficits (15.6% vs 0.3%).
+- **All three shedding policies roughly halve empty-battery time** compared with no control (205.8 min/day; Holm-adjusted p < 0.001).
+- **The solar forecast adds nothing measurable** (103.3 vs 103.1 min/day, p = 0.75).
+
+**Why the first scenario was replaced.** The first run (scenario A) used the testbed's 43 Wh battery. Without control the battery was empty on every one of the 136 days, for 488.8 min/day, and the three shedding policies came out almost identical (407.1–409.4 min/day). An empty battery leaves nothing for a better policy to protect. Scenario B was therefore defined and recorded in [docs/step12_scenarios.md](step12_scenarios.md) before it was run. Without control it leaves 32 of 136 days with no battery-empty minutes, so policies can be told apart.
+
+**Sensitivity.**
+- **Scenario C** (43 Wh, starting full at 17:00) behaves like A: the battery empties every day, and predictive edges reactive by 424.2 vs 426.5 min/day (p < 0.001).
+- **Switching:** in scenario B, raising the minimum switch time from 1 to 5 to 10 minutes keeps predictive ahead of reactive at every setting (105.1 vs 113.3, then 106.7 vs 117.3 min/day). Switches per day drop to 43.8 and 30.7 for predictive.
 
 ## 5. Limitations
 
 - **One household:** a single French household from 2006–2010, so the forecast results may not transfer to other households or load profiles.
 - **Modeled solar:** solar is modeled, not measured, which is why Table 4.3 is preliminary.
 - **Simplified demand:** demand is scaled and discretised onto four fixed zones.
-- **Battery sizing:** the 43 Wh battery cannot carry evening demand (about 195 Wh from 18:00 to 24:00), so every simulated day has empty-battery minutes and the gaps between policies are small.
+- **Battery sizing:** the testbed's 43 Wh battery cannot carry evening demand: it is empty on every simulated day in scenarios A and C. The primary scenario B assumes a 220 Wh battery that the testbed does not have.
 - **Shedding rules:** the shed order, restore rule and cutoff were designed for the simulation, not taken from the literature.
 
 ## 6. Next steps
 
 1. Log the real panel output (E2), replace the modeled solar, and re-run Step 12.
-2. Decide the testbed battery size, given that evening demand is the bottleneck.
+2. Decide the testbed battery size: scenario B (220 Wh) is the setting in which forecasting made a measurable difference.
 3. Run live sessions on the testbed (E4) with the frozen models.
