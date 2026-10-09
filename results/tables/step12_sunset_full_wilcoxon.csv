@@ -1,13 +1,13 @@
-measure,policy_a,policy_b,mean_a,mean_b,median_diff,n_days_differ,statistic,p_value,primary,p_holm
-battery_empty_min,no_control,reactive,505.651852,426.481481,45.0,115,0.0,0.0,False,0.0
-battery_empty_min,no_control,pred_demand,505.651852,424.244444,47.0,116,0.0,0.0,False,0.0
-battery_empty_min,no_control,pred_both,505.651852,424.051852,47.0,116,0.0,0.0,False,0.0
-battery_empty_min,reactive,pred_demand,426.481481,424.244444,0.0,67,283.5,0.0,True,
-battery_empty_min,reactive,pred_both,426.481481,424.051852,0.0,63,215.5,0.0,False,0.0
-battery_empty_min,pred_demand,pred_both,424.244444,424.051852,0.0,29,183.5,0.457534,False,0.457534
-comfort_cost_min,no_control,reactive,0.0,391.740741,-375.0,135,0.0,0.0,False,0.0
-comfort_cost_min,no_control,pred_demand,0.0,394.762963,-373.0,135,0.0,0.0,False,0.0
-comfort_cost_min,no_control,pred_both,0.0,394.777778,-373.0,135,0.0,0.0,False,0.0
-comfort_cost_min,reactive,pred_demand,391.740741,394.762963,-1.0,97,559.0,0.0,False,0.0
-comfort_cost_min,reactive,pred_both,391.740741,394.777778,-1.0,98,646.0,0.0,False,0.0
-comfort_cost_min,pred_demand,pred_both,394.762963,394.777778,0.0,44,484.5,0.900784,False,0.900784
+measure,policy_a,policy_b,mean_a,mean_b,median_diff,n_days_differ,statistic,p_value,primary,p_holm,p_display
+battery_empty_min,no_control,reactive,505.651852,426.481481,45.0,115,0.0,1.3091711023202455e-20,False,4.479775745676837e-20,< 0.001
+battery_empty_min,no_control,pred_demand,505.651852,424.244444,47.0,116,0.0,8.963307575970233e-21,False,4.479775745676837e-20,< 0.001
+battery_empty_min,no_control,pred_both,505.651852,424.051852,47.0,116,0.0,8.959551491353674e-21,False,4.479775745676837e-20,< 0.001
+battery_empty_min,reactive,pred_demand,426.481481,424.244444,0.0,67,283.5,7.936278032914052e-08,True,,< 0.001
+battery_empty_min,reactive,pred_both,426.481481,424.051852,0.0,63,215.5,5.239755203087705e-08,False,1.047951040617541e-07,< 0.001
+battery_empty_min,pred_demand,pred_both,424.244444,424.051852,0.0,29,183.5,0.4575335501218819,False,0.4575335501218819,0.458
+comfort_cost_min,no_control,reactive,0.0,391.740741,-375.0,135,0.0,6.709022364726516e-24,False,4.02541341883591e-23,< 0.001
+comfort_cost_min,no_control,pred_demand,0.0,394.762963,-373.0,135,0.0,6.710060110978963e-24,False,4.02541341883591e-23,< 0.001
+comfort_cost_min,no_control,pred_both,0.0,394.777778,-373.0,135,0.0,6.710267678743521e-24,False,4.02541341883591e-23,< 0.001
+comfort_cost_min,reactive,pred_demand,391.740741,394.762963,-1.0,97,559.0,5.543371283685301e-11,False,1.6630113851055904e-10,< 0.001
+comfort_cost_min,reactive,pred_both,391.740741,394.777778,-1.0,98,646.0,2.5645329584773944e-10,False,5.129065916954789e-10,< 0.001
+comfort_cost_min,pred_demand,pred_both,394.762963,394.777778,0.0,44,484.5,0.9007837390053786,False,0.9007837390053786,0.901

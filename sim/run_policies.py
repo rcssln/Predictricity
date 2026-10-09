@@ -323,6 +323,17 @@ def holm(p):
     return out
 
 
+def tests_for_csv(tests):
+    """Round the descriptive columns to 6 decimals but keep p-values unrounded (very small
+    ones would otherwise show as 0.0), and add p_display, the p-value to report ("< 0.001",
+    otherwise 3 decimals): Holm-adjusted for secondary comparisons, raw otherwise."""
+    out = tests.round({c: 6 for c in ["mean_a", "mean_b", "median_diff", "statistic"]})
+    shown = out["p_holm"].fillna(out["p_value"]) if "p_holm" in out else out["p_value"]
+    out["p_display"] = [("" if pd.isna(p) else "< 0.001" if p < 0.001 else f"{p:.3f}")
+                        for p in shown]
+    return out
+
+
 def wilcoxon_tests(per_day, with_holm):
     """Wilcoxon signed-rank tests for every pair of policies, paired by simulated day."""
     tests = []
@@ -417,7 +428,7 @@ def run_scenario(name):
     TABLE_DIR.mkdir(parents=True, exist_ok=True)
     per_day.to_csv(TABLE_DIR / f"step12_{name}_per_day.csv", index=False)
     (TABLE_DIR / f"step12_{name}_table_4_3.md").write_text(md, encoding="utf-8")
-    tests.round(6).to_csv(TABLE_DIR / f"step12_{name}_wilcoxon.csv", index=False)
+    tests_for_csv(tests).to_csv(TABLE_DIR / f"step12_{name}_wilcoxon.csv", index=False)
     plot_soc(per_day, traces, FIG_DIR / f"step12_{name}_soc_sample_day.png",
              "Battery charge under the four policies, " + SCENARIO_TITLES[name].split(" (")[0]
              + ", day starting {day:%a %d %b %Y %H:%M} (median No-control day with "
@@ -451,7 +462,7 @@ def write_original_files(cfg, per_day, leads, traces):
         f"({sens_cfg['battery_usable_wh']} Wh, {sens_cfg['solar_peak_w']} W)**",
         setting_note(sens_cfg, sens_day))
     (TABLE_DIR / "step12_sensitivity.md").write_text(sens_md, encoding="utf-8")
-    wilcoxon_tests(per_day, with_holm=False).round(6).to_csv(
+    tests_for_csv(wilcoxon_tests(per_day, with_holm=False)).to_csv(
         TABLE_DIR / "step12_wilcoxon.csv", index=False)
     plot_soc(per_day, traces, FIG_DIR / "step12_soc_sample_day.png",
              "Battery charge under the four policies, {day:%a %d %b %Y} "
