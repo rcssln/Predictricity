@@ -1,0 +1,17 @@
+run,change,target,n_features,params,best_n_trees,val_mae_w,val_rmse_w,fit_seconds
+All 24 features,the reference,y_next,24,"{'objective': 'l1', 'num_leaves': 127}",1639,274.71,570.52,97.3
+Without calendar,"time of day, day of week, weekend flag removed",y_next,20,"{'objective': 'l1', 'num_leaves': 127}",1986,277.72,578.3,109.5
+Without yesterday,load at this time yesterday removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",2000,274.54,569.99,113.9
+Without rolling,"5/15/60-min mean, std, max removed",y_next,15,"{'objective': 'l1', 'num_leaves': 127}",1492,277.02,572.98,79.4
+Without long lags,"lags 15, 30, 60 removed",y_next,21,"{'objective': 'l1', 'num_leaves': 127}",2000,276.19,571.71,105.8
+Without diff,the 1-minute change removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",1430,275.86,571.98,85.9
+Recent only,"now, lags 1-5 and diff_1 kept",y_next,6,"{'objective': 'l1', 'num_leaves': 127}",1999,293.08,597.42,96.6
+Now only,the current load only,y_next,1,"{'objective': 'l1', 'num_leaves': 127}",143,310.06,608.49,12.1
+All 24 features,the reference,y_peak,24,"{'objective': 'l1', 'num_leaves': 127}",1073,264.69,572.69,87.2
+Without calendar,"time of day, day of week, weekend flag removed",y_peak,20,"{'objective': 'l1', 'num_leaves': 127}",1434,266.72,582.0,94.7
+Without yesterday,load at this time yesterday removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",972,265.05,573.8,66.4
+Without rolling,"5/15/60-min mean, std, max removed",y_peak,15,"{'objective': 'l1', 'num_leaves': 127}",1493,265.93,574.4,80.6
+Without long lags,"lags 15, 30, 60 removed",y_peak,21,"{'objective': 'l1', 'num_leaves': 127}",1079,265.59,573.94,68.3
+Without diff,the 1-minute change removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",1000,265.99,574.27,64.7
+Recent only,"now, lags 1-5 and diff_1 kept",y_peak,6,"{'objective': 'l1', 'num_leaves': 127}",1992,271.05,588.62,85.3
+Now only,the current load only,y_peak,1,"{'objective': 'l1', 'num_leaves': 127}",143,276.45,600.14,9.1
