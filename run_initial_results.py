@@ -1,12 +1,13 @@
 """Reproduce every table and figure in results/ with one command (Step 13).
 
-Runs Steps 2, 3, 6, 7, 8, 9, 10, 11 and 12 in order, each as its own script. Needs
+Runs Steps 2, 3, 6, 7, 8, 9, 10, 11, 12, 14 and 15 in order, each as its own script. Needs
 data/raw/household_power_consumption.txt (Step 1) and the packages in requirements.txt.
 
     python run_initial_results.py                   # everything, retraining included
                                                     # (about 2.5 hours on an 8 GB laptop)
     python run_initial_results.py --skip-training   # reuse the 12 saved models in
-                                                    # models/artifacts/ (a few minutes)
+                                                    # models/artifacts/ (about an hour, most
+                                                    # of it the Step 15 feature ablation)
 
 The test set is only re-scored with the frozen models and settings, so a run reproduces
 the committed numbers; it does not tune anything.
@@ -42,6 +43,8 @@ STEPS = [
     ("12", "Policy simulation, scenario C sunset_full",
      ["sim/run_policies.py", "--scenario", "sunset_full"]),
     ("12", "Switching sensitivity on scenario B", ["sim/run_policies.py", "--switching"]),
+    ("14", "Day-level tests, effect sizes and bootstrap CIs", ["models/daily_tests.py"]),
+    ("15", "Feature ablation on validation (about 45-60 min)", ["models/feature_ablation.py"]),
 ]
 
 

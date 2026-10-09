@@ -359,17 +359,47 @@ reactive essentially does not; the two predictive policies differ.
 
 ---
 
+## Step 14. Day-level tests, effect sizes and bootstrap CIs
+
+```bash
+python models/daily_tests.py
+```
+
+For every Step 12 scenario, outcome (battery-empty minutes, comfort cost) and pair of
+policies, paired by simulated day: the mean daily difference with a 95% bootstrap confidence
+interval (10,000 resamples of days), the median difference, the days each policy was lower,
+the matched-pairs rank-biserial correlation, and the Wilcoxon p-value (Holm-adjusted except
+the pre-registered primary comparison). It reads only the committed `step12_{scenario}_per_day.csv`
+files. Outputs: `results/tables/step14_daily_tests.csv` (every comparison) and
+`step14_daily_tests.md` (the key comparisons per scenario).
+
+## Step 15. Feature ablation on validation (Objective 1)
+
+```bash
+python models/feature_ablation.py --max-trees 20   # smoke test, about a minute
+python models/feature_ablation.py                  # full run, about 45-60 min
+python models/feature_ablation.py --resume         # continue an interrupted run
+```
+
+Retrains the H = 10 LightGBM model for `y_next` and `y_peak` with one feature group removed
+at a time (calendar, yesterday, rolling, long lags, diff) or only a small group kept (recent
+only, now only), with the Step 8 setting and procedure, and scores every run on the
+**validation** months only. The test set is not used, so Table 4.1 does not change.
+Outputs: `results/tables/step15_feature_ablation.csv` and `step15_feature_ablation.md`
+(validation MAE and its change against all 24 features).
+
 ## Step 13. Reproduce every table and figure with one command
 
 ```bash
 pip install -r requirements.txt
 # place data/raw/household_power_consumption.txt first (Step 1)
-python run_initial_results.py --skip-training   # reuse the 12 saved models: about 6 min
+python run_initial_results.py --skip-training   # reuse the 12 saved models: about an hour
 python run_initial_results.py                   # retrain too: about 2.5 h on an 8 GB laptop
 ```
 
-`run_initial_results.py` runs Steps 2, 3, 6, 7, 8, 9, 10, 11 and 12 (all three scenarios
-and the switching sensitivity) in order and stops at the first failure. It rebuilds everything in `results/tables/` and `results/figures/`, plus
+`run_initial_results.py` runs Steps 2, 3, 6, 7, 8, 9, 10, 11, 12 (all three scenarios and the
+switching sensitivity), 14 and 15 in order and stops at the first failure. The Step 15
+ablation retrains 16 models and takes most of the hour. It rebuilds everything in `results/tables/` and `results/figures/`, plus
 `results/handoff/` and `data/processed/`. The test set is only re-scored with the frozen
 models and settings, so nothing is tuned. Checked on 2026-10-06, and again on 2026-10-07 with the scenarios, from an empty
 `data/processed/` with `--skip-training`: every committed table and figure came out
@@ -401,6 +431,8 @@ python sim/run_policies.py --scenario original
 python sim/run_policies.py --scenario evening_sized
 python sim/run_policies.py --scenario sunset_full
 python sim/run_policies.py --switching
+python models/daily_tests.py
+python models/feature_ablation.py
 ```
 
 ## Files that make up the study
@@ -423,6 +455,8 @@ python sim/run_policies.py --switching
 | `sim/config.yaml`, `sim/config.py` | Step 12: every simulation setting, and the loader |
 | `sim/solar_model.py`, `sim/replay.py` | Step 12.2: modeled solar; demand replay on the zones |
 | `sim/battery.py`, `sim/run_policies.py` | Step 12.3: battery model; four-policy simulation (Table 4.3) |
+| `models/daily_tests.py` | Step 14: day-level tests, effect sizes and bootstrap CIs for Step 12 |
+| `models/feature_ablation.py` | Step 15: feature ablation of the H = 10 LightGBM models on validation |
 | `docs/step12_scenarios.md` | Step 12: pre-registered scenarios, feasibility check and comparisons |
 | `tests/test_sim.py` | Step 12: simulator tests on a hand-made 2-day input |
 | `tests/test_leakage.py`, `tests/test_split.py` | Step 5: leakage and split proofs |
