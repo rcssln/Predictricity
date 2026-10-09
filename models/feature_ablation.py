@@ -166,6 +166,5 @@ def main():
     print("\n" + md)
     print(f"Saved {CSV_PATH.relative_to(ROOT)}\nSaved {MD_PATH.relative_to(ROOT)}")
 
-
 if __name__ == "__main__":
     main()
