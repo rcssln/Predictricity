@@ -1,0 +1,289 @@
+house,run,change,target,n_features,params,best_n_trees,val_mae_w,val_rmse_w,fit_seconds
+H1,All 24 features,the reference,y_next,24,"{'objective': 'l1', 'num_leaves': 127}",321,75.92,345.57,5.5
+H1,Without calendar,"time of day, day of week, weekend flag removed",y_next,20,"{'objective': 'l1', 'num_leaves': 127}",293,75.8,349.55,4.4
+H1,Without yesterday,load at this time yesterday removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",282,75.93,346.8,5.4
+H1,Without rolling,"5/15/60-min mean, std, max removed",y_next,15,"{'objective': 'l1', 'num_leaves': 127}",492,76.91,346.37,6.6
+H1,Without long lags,"lags 15, 30, 60 removed",y_next,21,"{'objective': 'l1', 'num_leaves': 127}",285,76.06,347.48,5.0
+H1,Without diff,the 1-minute change removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",280,75.96,346.83,5.7
+H1,Recent only,"now, lags 1-5 and diff_1 kept",y_next,6,"{'objective': 'l1', 'num_leaves': 127}",965,78.16,357.93,10.1
+H1,Now only,the current load only,y_next,1,"{'objective': 'l1', 'num_leaves': 127}",142,87.8,390.46,1.7
+H1,All 24 features,the reference,y_peak,24,"{'objective': 'l1', 'num_leaves': 127}",375,85.88,406.86,7.1
+H1,Without calendar,"time of day, day of week, weekend flag removed",y_peak,20,"{'objective': 'l1', 'num_leaves': 127}",501,86.04,408.31,7.4
+H1,Without yesterday,load at this time yesterday removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",365,85.38,405.47,6.8
+H1,Without rolling,"5/15/60-min mean, std, max removed",y_peak,15,"{'objective': 'l1', 'num_leaves': 127}",431,87.44,411.24,6.0
+H1,Without long lags,"lags 15, 30, 60 removed",y_peak,21,"{'objective': 'l1', 'num_leaves': 127}",523,85.88,406.31,8.3
+H1,Without diff,the 1-minute change removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",337,86.8,409.1,6.4
+H1,Recent only,"now, lags 1-5 and diff_1 kept",y_peak,6,"{'objective': 'l1', 'num_leaves': 127}",1437,86.56,414.9,14.9
+H1,Now only,the current load only,y_peak,1,"{'objective': 'l1', 'num_leaves': 127}",277,102.64,465.07,2.5
+H2,All 24 features,the reference,y_next,24,"{'objective': 'l1', 'num_leaves': 127}",533,231.03,595.23,9.5
+H2,Without calendar,"time of day, day of week, weekend flag removed",y_next,20,"{'objective': 'l1', 'num_leaves': 127}",1679,241.82,617.75,20.4
+H2,Without yesterday,load at this time yesterday removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",498,231.01,595.19,9.0
+H2,Without rolling,"5/15/60-min mean, std, max removed",y_next,15,"{'objective': 'l1', 'num_leaves': 127}",722,231.18,594.8,9.8
+H2,Without long lags,"lags 15, 30, 60 removed",y_next,21,"{'objective': 'l1', 'num_leaves': 127}",561,232.71,595.35,8.9
+H2,Without diff,the 1-minute change removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",597,231.43,594.75,10.1
+H2,Recent only,"now, lags 1-5 and diff_1 kept",y_next,6,"{'objective': 'l1', 'num_leaves': 127}",1651,250.22,629.49,16.3
+H2,Now only,the current load only,y_next,1,"{'objective': 'l1', 'num_leaves': 127}",553,276.62,654.66,5.6
+H2,All 24 features,the reference,y_peak,24,"{'objective': 'l1', 'num_leaves': 127}",610,293.95,735.52,9.4
+H2,Without calendar,"time of day, day of week, weekend flag removed",y_peak,20,"{'objective': 'l1', 'num_leaves': 127}",730,295.18,742.02,9.9
+H2,Without yesterday,load at this time yesterday removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",622,294.08,735.96,10.7
+H2,Without rolling,"5/15/60-min mean, std, max removed",y_peak,15,"{'objective': 'l1', 'num_leaves': 127}",1074,296.3,739.62,13.1
+H2,Without long lags,"lags 15, 30, 60 removed",y_peak,21,"{'objective': 'l1', 'num_leaves': 127}",640,294.71,735.64,10.2
+H2,Without diff,the 1-minute change removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",521,295.61,738.25,9.3
+H2,Recent only,"now, lags 1-5 and diff_1 kept",y_peak,6,"{'objective': 'l1', 'num_leaves': 127}",1274,305.43,758.83,13.1
+H2,Now only,the current load only,y_peak,1,"{'objective': 'l1', 'num_leaves': 127}",336,338.82,804.95,3.4
+H3,All 24 features,the reference,y_next,24,"{'objective': 'l1', 'num_leaves': 127}",384,247.56,607.93,7.2
+H3,Without calendar,"time of day, day of week, weekend flag removed",y_next,20,"{'objective': 'l1', 'num_leaves': 127}",424,252.81,627.72,6.2
+H3,Without yesterday,load at this time yesterday removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",353,248.92,612.08,6.7
+H3,Without rolling,"5/15/60-min mean, std, max removed",y_next,15,"{'objective': 'l1', 'num_leaves': 127}",561,247.82,607.56,7.1
+H3,Without long lags,"lags 15, 30, 60 removed",y_next,21,"{'objective': 'l1', 'num_leaves': 127}",477,248.41,606.67,7.0
+H3,Without diff,the 1-minute change removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",493,247.23,605.26,8.4
+H3,Recent only,"now, lags 1-5 and diff_1 kept",y_next,6,"{'objective': 'l1', 'num_leaves': 127}",252,255.68,642.78,3.3
+H3,Now only,the current load only,y_next,1,"{'objective': 'l1', 'num_leaves': 127}",371,267.84,651.77,3.8
+H3,All 24 features,the reference,y_peak,24,"{'objective': 'l1', 'num_leaves': 127}",252,282.78,694.41,5.5
+H3,Without calendar,"time of day, day of week, weekend flag removed",y_peak,20,"{'objective': 'l1', 'num_leaves': 127}",312,283.61,698.15,4.9
+H3,Without yesterday,load at this time yesterday removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",263,282.97,693.68,5.5
+H3,Without rolling,"5/15/60-min mean, std, max removed",y_peak,15,"{'objective': 'l1', 'num_leaves': 127}",316,283.29,695.46,4.6
+H3,Without long lags,"lags 15, 30, 60 removed",y_peak,21,"{'objective': 'l1', 'num_leaves': 127}",275,282.6,694.01,5.4
+H3,Without diff,the 1-minute change removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",275,284.32,694.73,5.8
+H3,Recent only,"now, lags 1-5 and diff_1 kept",y_peak,6,"{'objective': 'l1', 'num_leaves': 127}",634,285.51,704.99,7.4
+H3,Now only,the current load only,y_peak,1,"{'objective': 'l1', 'num_leaves': 127}",214,296.84,722.15,2.8
+H4,All 24 features,the reference,y_next,24,"{'objective': 'l1', 'num_leaves': 127}",292,416.81,990.71,5.9
+H4,Without calendar,"time of day, day of week, weekend flag removed",y_next,20,"{'objective': 'l1', 'num_leaves': 127}",370,417.34,992.82,5.9
+H4,Without yesterday,load at this time yesterday removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",387,416.09,989.16,7.2
+H4,Without rolling,"5/15/60-min mean, std, max removed",y_next,15,"{'objective': 'l1', 'num_leaves': 127}",428,417.13,988.89,6.4
+H4,Without long lags,"lags 15, 30, 60 removed",y_next,21,"{'objective': 'l1', 'num_leaves': 127}",309,418.09,992.91,5.6
+H4,Without diff,the 1-minute change removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",393,417.25,990.4,7.1
+H4,Recent only,"now, lags 1-5 and diff_1 kept",y_next,6,"{'objective': 'l1', 'num_leaves': 127}",663,415.93,994.32,7.5
+H4,Now only,the current load only,y_next,1,"{'objective': 'l1', 'num_leaves': 127}",239,439.4,1002.64,2.5
+H4,All 24 features,the reference,y_peak,24,"{'objective': 'l1', 'num_leaves': 127}",292,447.44,984.9,5.9
+H4,Without calendar,"time of day, day of week, weekend flag removed",y_peak,20,"{'objective': 'l1', 'num_leaves': 127}",299,446.69,985.38,4.9
+H4,Without yesterday,load at this time yesterday removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",293,447.02,984.95,5.8
+H4,Without rolling,"5/15/60-min mean, std, max removed",y_peak,15,"{'objective': 'l1', 'num_leaves': 127}",284,453.58,992.84,4.8
+H4,Without long lags,"lags 15, 30, 60 removed",y_peak,21,"{'objective': 'l1', 'num_leaves': 127}",238,448.03,986.31,4.8
+H4,Without diff,the 1-minute change removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",282,450.4,987.49,5.6
+H4,Recent only,"now, lags 1-5 and diff_1 kept",y_peak,6,"{'objective': 'l1', 'num_leaves': 127}",689,451.65,996.55,7.4
+H4,Now only,the current load only,y_peak,1,"{'objective': 'l1', 'num_leaves': 127}",162,498.04,1050.81,1.8
+H5,All 24 features,the reference,y_next,24,"{'objective': 'l1', 'num_leaves': 127}",1188,119.4,369.58,16.7
+H5,Without calendar,"time of day, day of week, weekend flag removed",y_next,20,"{'objective': 'l1', 'num_leaves': 127}",1070,120.92,371.94,13.8
+H5,Without yesterday,load at this time yesterday removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",1249,119.21,369.29,17.4
+H5,Without rolling,"5/15/60-min mean, std, max removed",y_next,15,"{'objective': 'l1', 'num_leaves': 127}",1024,121.61,369.44,12.3
+H5,Without long lags,"lags 15, 30, 60 removed",y_next,21,"{'objective': 'l1', 'num_leaves': 127}",697,122.69,370.82,11.0
+H5,Without diff,the 1-minute change removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",1699,119.46,368.96,22.4
+H5,Recent only,"now, lags 1-5 and diff_1 kept",y_next,6,"{'objective': 'l1', 'num_leaves': 127}",752,136.63,378.6,8.5
+H5,Now only,the current load only,y_next,1,"{'objective': 'l1', 'num_leaves': 127}",100,144.84,386.0,1.5
+H5,All 24 features,the reference,y_peak,24,"{'objective': 'l1', 'num_leaves': 127}",324,191.03,602.9,7.0
+H5,Without calendar,"time of day, day of week, weekend flag removed",y_peak,20,"{'objective': 'l1', 'num_leaves': 127}",434,190.55,602.53,6.6
+H5,Without yesterday,load at this time yesterday removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",437,191.12,601.79,8.4
+H5,Without rolling,"5/15/60-min mean, std, max removed",y_peak,15,"{'objective': 'l1', 'num_leaves': 127}",1168,192.24,601.37,15.1
+H5,Without long lags,"lags 15, 30, 60 removed",y_peak,21,"{'objective': 'l1', 'num_leaves': 127}",416,193.16,600.89,7.5
+H5,Without diff,the 1-minute change removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",376,191.7,603.19,7.5
+H5,Recent only,"now, lags 1-5 and diff_1 kept",y_peak,6,"{'objective': 'l1', 'num_leaves': 127}",1133,200.36,607.15,11.4
+H5,Now only,the current load only,y_peak,1,"{'objective': 'l1', 'num_leaves': 127}",315,210.29,626.64,3.2
+H6,All 24 features,the reference,y_next,24,"{'objective': 'l1', 'num_leaves': 127}",1419,290.18,627.81,20.0
+H6,Without calendar,"time of day, day of week, weekend flag removed",y_next,20,"{'objective': 'l1', 'num_leaves': 127}",823,295.48,639.83,10.4
+H6,Without yesterday,load at this time yesterday removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",1211,289.72,629.08,15.2
+H6,Without rolling,"5/15/60-min mean, std, max removed",y_next,15,"{'objective': 'l1', 'num_leaves': 127}",1114,293.2,631.12,13.1
+H6,Without long lags,"lags 15, 30, 60 removed",y_next,21,"{'objective': 'l1', 'num_leaves': 127}",1249,290.61,629.77,16.6
+H6,Without diff,the 1-minute change removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",976,290.91,630.04,14.3
+H6,Recent only,"now, lags 1-5 and diff_1 kept",y_next,6,"{'objective': 'l1', 'num_leaves': 127}",645,308.08,652.69,6.7
+H6,Now only,the current load only,y_next,1,"{'objective': 'l1', 'num_leaves': 127}",119,332.35,678.46,1.6
+H6,All 24 features,the reference,y_peak,24,"{'objective': 'l1', 'num_leaves': 127}",374,343.46,761.54,7.1
+H6,Without calendar,"time of day, day of week, weekend flag removed",y_peak,20,"{'objective': 'l1', 'num_leaves': 127}",455,345.25,766.34,6.6
+H6,Without yesterday,load at this time yesterday removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",359,343.25,761.39,5.8
+H6,Without rolling,"5/15/60-min mean, std, max removed",y_peak,15,"{'objective': 'l1', 'num_leaves': 127}",453,346.42,763.84,6.4
+H6,Without long lags,"lags 15, 30, 60 removed",y_peak,21,"{'objective': 'l1', 'num_leaves': 127}",432,343.11,759.86,7.2
+H6,Without diff,the 1-minute change removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",310,344.81,763.1,5.2
+H6,Recent only,"now, lags 1-5 and diff_1 kept",y_peak,6,"{'objective': 'l1', 'num_leaves': 127}",743,355.84,775.3,7.7
+H6,Now only,the current load only,y_peak,1,"{'objective': 'l1', 'num_leaves': 127}",305,391.94,829.33,3.1
+H7,All 24 features,the reference,y_next,24,"{'objective': 'l1', 'num_leaves': 127}",405,291.21,823.82,7.2
+H7,Without calendar,"time of day, day of week, weekend flag removed",y_next,20,"{'objective': 'l1', 'num_leaves': 127}",267,296.47,840.57,4.4
+H7,Without yesterday,load at this time yesterday removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",238,289.13,827.24,4.3
+H7,Without rolling,"5/15/60-min mean, std, max removed",y_next,15,"{'objective': 'l1', 'num_leaves': 127}",323,293.39,831.0,4.5
+H7,Without long lags,"lags 15, 30, 60 removed",y_next,21,"{'objective': 'l1', 'num_leaves': 127}",298,292.43,825.43,5.4
+H7,Without diff,the 1-minute change removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",293,291.91,826.48,5.6
+H7,Recent only,"now, lags 1-5 and diff_1 kept",y_next,6,"{'objective': 'l1', 'num_leaves': 127}",201,304.58,848.33,2.8
+H7,Now only,the current load only,y_next,1,"{'objective': 'l1', 'num_leaves': 127}",185,337.0,872.46,2.0
+H7,All 24 features,the reference,y_peak,24,"{'objective': 'l1', 'num_leaves': 127}",521,399.53,967.82,8.7
+H7,Without calendar,"time of day, day of week, weekend flag removed",y_peak,20,"{'objective': 'l1', 'num_leaves': 127}",513,401.48,976.42,8.3
+H7,Without yesterday,load at this time yesterday removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",411,398.62,970.01,7.2
+H7,Without rolling,"5/15/60-min mean, std, max removed",y_peak,15,"{'objective': 'l1', 'num_leaves': 127}",418,409.08,990.27,5.4
+H7,Without long lags,"lags 15, 30, 60 removed",y_peak,21,"{'objective': 'l1', 'num_leaves': 127}",319,400.16,971.75,5.6
+H7,Without diff,the 1-minute change removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",491,401.56,970.58,8.2
+H7,Recent only,"now, lags 1-5 and diff_1 kept",y_peak,6,"{'objective': 'l1', 'num_leaves': 127}",514,416.5,1014.52,5.6
+H7,Now only,the current load only,y_peak,1,"{'objective': 'l1', 'num_leaves': 127}",252,426.83,1037.59,2.5
+H8,All 24 features,the reference,y_next,24,"{'objective': 'l1', 'num_leaves': 127}",951,249.33,584.03,14.5
+H8,Without calendar,"time of day, day of week, weekend flag removed",y_next,20,"{'objective': 'l1', 'num_leaves': 127}",1397,263.21,624.08,16.8
+H8,Without yesterday,load at this time yesterday removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",970,248.34,581.42,14.1
+H8,Without rolling,"5/15/60-min mean, std, max removed",y_next,15,"{'objective': 'l1', 'num_leaves': 127}",999,248.19,576.62,12.1
+H8,Without long lags,"lags 15, 30, 60 removed",y_next,21,"{'objective': 'l1', 'num_leaves': 127}",608,251.39,590.95,9.0
+H8,Without diff,the 1-minute change removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",846,248.18,576.45,12.4
+H8,Recent only,"now, lags 1-5 and diff_1 kept",y_next,6,"{'objective': 'l1', 'num_leaves': 127}",913,268.63,641.86,9.7
+H8,Now only,the current load only,y_next,1,"{'objective': 'l1', 'num_leaves': 127}",328,279.91,658.64,3.2
+H8,All 24 features,the reference,y_peak,24,"{'objective': 'l1', 'num_leaves': 127}",443,286.1,662.68,7.8
+H8,Without calendar,"time of day, day of week, weekend flag removed",y_peak,20,"{'objective': 'l1', 'num_leaves': 127}",453,286.74,678.07,6.5
+H8,Without yesterday,load at this time yesterday removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",507,285.16,658.52,8.5
+H8,Without rolling,"5/15/60-min mean, std, max removed",y_peak,15,"{'objective': 'l1', 'num_leaves': 127}",756,287.53,659.57,9.2
+H8,Without long lags,"lags 15, 30, 60 removed",y_peak,21,"{'objective': 'l1', 'num_leaves': 127}",344,288.78,667.8,5.9
+H8,Without diff,the 1-minute change removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",352,288.13,666.36,6.3
+H8,Recent only,"now, lags 1-5 and diff_1 kept",y_peak,6,"{'objective': 'l1', 'num_leaves': 127}",1451,290.91,690.2,14.4
+H8,Now only,the current load only,y_peak,1,"{'objective': 'l1', 'num_leaves': 127}",515,312.4,729.8,4.8
+H9,All 24 features,the reference,y_next,24,"{'objective': 'l1', 'num_leaves': 127}",573,211.69,458.96,9.4
+H9,Without calendar,"time of day, day of week, weekend flag removed",y_next,20,"{'objective': 'l1', 'num_leaves': 127}",906,214.27,463.05,12.8
+H9,Without yesterday,load at this time yesterday removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",894,210.8,455.99,13.2
+H9,Without rolling,"5/15/60-min mean, std, max removed",y_next,15,"{'objective': 'l1', 'num_leaves': 127}",940,214.38,461.12,11.8
+H9,Without long lags,"lags 15, 30, 60 removed",y_next,21,"{'objective': 'l1', 'num_leaves': 127}",1184,212.33,457.62,16.0
+H9,Without diff,the 1-minute change removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",573,211.67,458.86,9.0
+H9,Recent only,"now, lags 1-5 and diff_1 kept",y_next,6,"{'objective': 'l1', 'num_leaves': 127}",1125,225.36,475.84,12.2
+H9,Now only,the current load only,y_next,1,"{'objective': 'l1', 'num_leaves': 127}",168,235.23,484.84,1.9
+H9,All 24 features,the reference,y_peak,24,"{'objective': 'l1', 'num_leaves': 127}",699,218.87,543.83,11.1
+H9,Without calendar,"time of day, day of week, weekend flag removed",y_peak,20,"{'objective': 'l1', 'num_leaves': 127}",978,220.66,548.48,12.8
+H9,Without yesterday,load at this time yesterday removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",578,219.83,545.81,9.3
+H9,Without rolling,"5/15/60-min mean, std, max removed",y_peak,15,"{'objective': 'l1', 'num_leaves': 127}",831,224.08,552.4,10.4
+H9,Without long lags,"lags 15, 30, 60 removed",y_peak,21,"{'objective': 'l1', 'num_leaves': 127}",729,220.48,545.09,10.7
+H9,Without diff,the 1-minute change removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",678,219.26,543.0,9.5
+H9,Recent only,"now, lags 1-5 and diff_1 kept",y_peak,6,"{'objective': 'l1', 'num_leaves': 127}",1146,232.51,564.82,11.5
+H9,Now only,the current load only,y_peak,1,"{'objective': 'l1', 'num_leaves': 127}",193,252.34,604.31,2.0
+H10,All 24 features,the reference,y_next,24,"{'objective': 'l1', 'num_leaves': 127}",476,345.39,1122.47,8.0
+H10,Without calendar,"time of day, day of week, weekend flag removed",y_next,20,"{'objective': 'l1', 'num_leaves': 127}",466,346.67,1131.77,6.5
+H10,Without yesterday,load at this time yesterday removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",442,344.95,1122.9,7.4
+H10,Without rolling,"5/15/60-min mean, std, max removed",y_next,15,"{'objective': 'l1', 'num_leaves': 127}",431,347.64,1124.07,6.1
+H10,Without long lags,"lags 15, 30, 60 removed",y_next,21,"{'objective': 'l1', 'num_leaves': 127}",553,346.45,1120.74,8.4
+H10,Without diff,the 1-minute change removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",468,345.72,1123.21,7.6
+H10,Recent only,"now, lags 1-5 and diff_1 kept",y_next,6,"{'objective': 'l1', 'num_leaves': 127}",416,356.85,1141.05,4.8
+H10,Now only,the current load only,y_next,1,"{'objective': 'l1', 'num_leaves': 127}",158,386.47,1153.95,1.7
+H10,All 24 features,the reference,y_peak,24,"{'objective': 'l1', 'num_leaves': 127}",477,433.97,1229.07,7.1
+H10,Without calendar,"time of day, day of week, weekend flag removed",y_peak,20,"{'objective': 'l1', 'num_leaves': 127}",476,436.56,1246.55,7.6
+H10,Without yesterday,load at this time yesterday removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",456,434.77,1233.84,7.5
+H10,Without rolling,"5/15/60-min mean, std, max removed",y_peak,15,"{'objective': 'l1', 'num_leaves': 127}",537,436.03,1236.76,7.1
+H10,Without long lags,"lags 15, 30, 60 removed",y_peak,21,"{'objective': 'l1', 'num_leaves': 127}",461,435.54,1233.3,7.2
+H10,Without diff,the 1-minute change removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",529,437.0,1229.17,8.5
+H10,Recent only,"now, lags 1-5 and diff_1 kept",y_peak,6,"{'objective': 'l1', 'num_leaves': 127}",1076,437.98,1262.15,10.7
+H10,Now only,the current load only,y_peak,1,"{'objective': 'l1', 'num_leaves': 127}",242,456.35,1294.43,2.2
+H11,All 24 features,the reference,y_next,24,"{'objective': 'l1', 'num_leaves': 127}",498,321.74,902.98,8.4
+H11,Without calendar,"time of day, day of week, weekend flag removed",y_next,20,"{'objective': 'l1', 'num_leaves': 127}",567,322.07,907.98,7.9
+H11,Without yesterday,load at this time yesterday removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",615,321.19,900.02,9.6
+H11,Without rolling,"5/15/60-min mean, std, max removed",y_next,15,"{'objective': 'l1', 'num_leaves': 127}",756,324.66,905.02,9.7
+H11,Without long lags,"lags 15, 30, 60 removed",y_next,21,"{'objective': 'l1', 'num_leaves': 127}",517,321.83,902.88,7.5
+H11,Without diff,the 1-minute change removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",709,322.6,902.13,10.8
+H11,Recent only,"now, lags 1-5 and diff_1 kept",y_next,6,"{'objective': 'l1', 'num_leaves': 127}",628,326.78,920.36,6.8
+H11,Now only,the current load only,y_next,1,"{'objective': 'l1', 'num_leaves': 127}",249,350.93,940.22,2.4
+H11,All 24 features,the reference,y_peak,24,"{'objective': 'l1', 'num_leaves': 127}",553,369.34,988.94,9.3
+H11,Without calendar,"time of day, day of week, weekend flag removed",y_peak,20,"{'objective': 'l1', 'num_leaves': 127}",510,367.71,996.09,8.3
+H11,Without yesterday,load at this time yesterday removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",507,368.6,991.0,8.4
+H11,Without rolling,"5/15/60-min mean, std, max removed",y_peak,15,"{'objective': 'l1', 'num_leaves': 127}",510,371.39,999.71,7.1
+H11,Without long lags,"lags 15, 30, 60 removed",y_peak,21,"{'objective': 'l1', 'num_leaves': 127}",533,369.4,991.31,8.4
+H11,Without diff,the 1-minute change removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",525,370.04,992.78,8.5
+H11,Recent only,"now, lags 1-5 and diff_1 kept",y_peak,6,"{'objective': 'l1', 'num_leaves': 127}",983,371.28,1004.03,10.3
+H11,Now only,the current load only,y_peak,1,"{'objective': 'l1', 'num_leaves': 127}",236,405.28,1076.21,2.3
+H12,All 24 features,the reference,y_next,24,"{'objective': 'l1', 'num_leaves': 127}",1076,132.66,373.73,14.4
+H12,Without calendar,"time of day, day of week, weekend flag removed",y_next,20,"{'objective': 'l1', 'num_leaves': 127}",1269,133.69,378.02,15.4
+H12,Without yesterday,load at this time yesterday removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",919,132.65,373.77,14.1
+H12,Without rolling,"5/15/60-min mean, std, max removed",y_next,15,"{'objective': 'l1', 'num_leaves': 127}",797,134.07,376.6,9.5
+H12,Without long lags,"lags 15, 30, 60 removed",y_next,21,"{'objective': 'l1', 'num_leaves': 127}",936,134.6,374.87,13.5
+H12,Without diff,the 1-minute change removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",1018,133.11,374.31,15.2
+H12,Recent only,"now, lags 1-5 and diff_1 kept",y_next,6,"{'objective': 'l1', 'num_leaves': 127}",1119,153.35,387.24,12.0
+H12,Now only,the current load only,y_next,1,"{'objective': 'l1', 'num_leaves': 127}",85,172.75,399.49,1.3
+H12,All 24 features,the reference,y_peak,24,"{'objective': 'l1', 'num_leaves': 127}",548,195.54,523.06,9.6
+H12,Without calendar,"time of day, day of week, weekend flag removed",y_peak,20,"{'objective': 'l1', 'num_leaves': 127}",693,196.33,526.1,9.2
+H12,Without yesterday,load at this time yesterday removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",802,195.42,520.29,11.3
+H12,Without rolling,"5/15/60-min mean, std, max removed",y_peak,15,"{'objective': 'l1', 'num_leaves': 127}",864,196.12,523.91,11.5
+H12,Without long lags,"lags 15, 30, 60 removed",y_peak,21,"{'objective': 'l1', 'num_leaves': 127}",428,196.3,524.69,7.5
+H12,Without diff,the 1-minute change removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",507,196.21,523.5,8.9
+H12,Recent only,"now, lags 1-5 and diff_1 kept",y_peak,6,"{'objective': 'l1', 'num_leaves': 127}",1994,208.2,532.75,19.7
+H12,Now only,the current load only,y_peak,1,"{'objective': 'l1', 'num_leaves': 127}",156,223.43,548.22,1.8
+H13,All 24 features,the reference,y_next,24,"{'objective': 'l1', 'num_leaves': 127}",528,176.58,415.23,8.0
+H13,Without calendar,"time of day, day of week, weekend flag removed",y_next,20,"{'objective': 'l1', 'num_leaves': 127}",651,181.02,427.75,9.0
+H13,Without yesterday,load at this time yesterday removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",441,176.81,416.42,8.1
+H13,Without rolling,"5/15/60-min mean, std, max removed",y_next,15,"{'objective': 'l1', 'num_leaves': 127}",845,176.43,415.45,11.5
+H13,Without long lags,"lags 15, 30, 60 removed",y_next,21,"{'objective': 'l1', 'num_leaves': 127}",618,176.58,414.57,9.8
+H13,Without diff,the 1-minute change removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",515,177.07,416.26,9.0
+H13,Recent only,"now, lags 1-5 and diff_1 kept",y_next,6,"{'objective': 'l1', 'num_leaves': 127}",562,184.49,431.74,6.2
+H13,Now only,the current load only,y_next,1,"{'objective': 'l1', 'num_leaves': 127}",86,197.3,450.31,1.4
+H13,All 24 features,the reference,y_peak,24,"{'objective': 'l1', 'num_leaves': 127}",541,267.61,494.34,9.5
+H13,Without calendar,"time of day, day of week, weekend flag removed",y_peak,20,"{'objective': 'l1', 'num_leaves': 127}",713,274.78,504.32,9.6
+H13,Without yesterday,load at this time yesterday removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",679,267.5,492.71,11.3
+H13,Without rolling,"5/15/60-min mean, std, max removed",y_peak,15,"{'objective': 'l1', 'num_leaves': 127}",814,271.46,499.02,9.9
+H13,Without long lags,"lags 15, 30, 60 removed",y_peak,21,"{'objective': 'l1', 'num_leaves': 127}",572,268.13,493.47,8.8
+H13,Without diff,the 1-minute change removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",458,269.11,496.44,6.7
+H13,Recent only,"now, lags 1-5 and diff_1 kept",y_peak,6,"{'objective': 'l1', 'num_leaves': 127}",1135,288.8,516.8,11.5
+H13,Now only,the current load only,y_peak,1,"{'objective': 'l1', 'num_leaves': 127}",137,313.5,541.14,1.8
+H15,All 24 features,the reference,y_next,24,"{'objective': 'l1', 'num_leaves': 127}",745,264.35,640.08,10.3
+H15,Without calendar,"time of day, day of week, weekend flag removed",y_next,20,"{'objective': 'l1', 'num_leaves': 127}",1090,263.11,638.87,13.9
+H15,Without yesterday,load at this time yesterday removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",927,264.19,639.0,13.8
+H15,Without rolling,"5/15/60-min mean, std, max removed",y_next,15,"{'objective': 'l1', 'num_leaves': 127}",912,267.4,642.34,10.4
+H15,Without long lags,"lags 15, 30, 60 removed",y_next,21,"{'objective': 'l1', 'num_leaves': 127}",645,266.42,644.69,9.7
+H15,Without diff,the 1-minute change removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",706,265.32,641.2,9.8
+H15,Recent only,"now, lags 1-5 and diff_1 kept",y_next,6,"{'objective': 'l1', 'num_leaves': 127}",1024,275.41,653.17,10.5
+H15,Now only,the current load only,y_next,1,"{'objective': 'l1', 'num_leaves': 127}",158,294.52,663.15,1.8
+H15,All 24 features,the reference,y_peak,24,"{'objective': 'l1', 'num_leaves': 127}",462,293.01,723.48,8.3
+H15,Without calendar,"time of day, day of week, weekend flag removed",y_peak,20,"{'objective': 'l1', 'num_leaves': 127}",412,294.13,732.96,6.2
+H15,Without yesterday,load at this time yesterday removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",493,292.42,722.55,7.5
+H15,Without rolling,"5/15/60-min mean, std, max removed",y_peak,15,"{'objective': 'l1', 'num_leaves': 127}",652,294.86,724.43,8.8
+H15,Without long lags,"lags 15, 30, 60 removed",y_peak,21,"{'objective': 'l1', 'num_leaves': 127}",433,292.93,726.37,7.3
+H15,Without diff,the 1-minute change removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",432,294.37,724.42,7.7
+H15,Recent only,"now, lags 1-5 and diff_1 kept",y_peak,6,"{'objective': 'l1', 'num_leaves': 127}",813,298.29,742.21,8.7
+H15,Now only,the current load only,y_peak,1,"{'objective': 'l1', 'num_leaves': 127}",178,328.31,789.74,1.9
+H17,All 24 features,the reference,y_next,24,"{'objective': 'l1', 'num_leaves': 127}",302,117.06,383.04,6.3
+H17,Without calendar,"time of day, day of week, weekend flag removed",y_next,20,"{'objective': 'l1', 'num_leaves': 127}",311,117.64,384.69,4.9
+H17,Without yesterday,load at this time yesterday removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",359,117.07,382.62,5.8
+H17,Without rolling,"5/15/60-min mean, std, max removed",y_next,15,"{'objective': 'l1', 'num_leaves': 127}",477,117.34,383.06,6.8
+H17,Without long lags,"lags 15, 30, 60 removed",y_next,21,"{'objective': 'l1', 'num_leaves': 127}",282,119.39,383.93,5.3
+H17,Without diff,the 1-minute change removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",283,117.34,383.66,5.0
+H17,Recent only,"now, lags 1-5 and diff_1 kept",y_next,6,"{'objective': 'l1', 'num_leaves': 127}",214,126.45,389.74,2.8
+H17,Now only,the current load only,y_next,1,"{'objective': 'l1', 'num_leaves': 127}",120,133.08,391.36,1.6
+H17,All 24 features,the reference,y_peak,24,"{'objective': 'l1', 'num_leaves': 127}",550,129.7,459.44,8.5
+H17,Without calendar,"time of day, day of week, weekend flag removed",y_peak,20,"{'objective': 'l1', 'num_leaves': 127}",821,129.81,460.35,10.7
+H17,Without yesterday,load at this time yesterday removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",594,129.36,459.45,8.7
+H17,Without rolling,"5/15/60-min mean, std, max removed",y_peak,15,"{'objective': 'l1', 'num_leaves': 127}",783,130.8,461.55,10.3
+H17,Without long lags,"lags 15, 30, 60 removed",y_peak,21,"{'objective': 'l1', 'num_leaves': 127}",733,131.72,458.25,11.0
+H17,Without diff,the 1-minute change removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",536,130.33,460.38,9.2
+H17,Recent only,"now, lags 1-5 and diff_1 kept",y_peak,6,"{'objective': 'l1', 'num_leaves': 127}",1306,135.99,465.57,13.1
+H17,Now only,the current load only,y_peak,1,"{'objective': 'l1', 'num_leaves': 127}",181,149.64,494.48,2.0
+H18,All 24 features,the reference,y_next,24,"{'objective': 'l1', 'num_leaves': 127}",307,282.03,666.61,5.2
+H18,Without calendar,"time of day, day of week, weekend flag removed",y_next,20,"{'objective': 'l1', 'num_leaves': 127}",369,285.42,674.89,5.5
+H18,Without yesterday,load at this time yesterday removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",256,282.03,666.59,5.4
+H18,Without rolling,"5/15/60-min mean, std, max removed",y_next,15,"{'objective': 'l1', 'num_leaves': 127}",337,282.17,665.1,5.2
+H18,Without long lags,"lags 15, 30, 60 removed",y_next,21,"{'objective': 'l1', 'num_leaves': 127}",387,282.72,664.64,6.6
+H18,Without diff,the 1-minute change removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",396,282.01,666.29,6.0
+H18,Recent only,"now, lags 1-5 and diff_1 kept",y_next,6,"{'objective': 'l1', 'num_leaves': 127}",314,296.2,679.34,3.8
+H18,Now only,the current load only,y_next,1,"{'objective': 'l1', 'num_leaves': 127}",86,310.65,687.66,1.3
+H18,All 24 features,the reference,y_peak,24,"{'objective': 'l1', 'num_leaves': 127}",265,361.3,816.74,4.8
+H18,Without calendar,"time of day, day of week, weekend flag removed",y_peak,20,"{'objective': 'l1', 'num_leaves': 127}",252,362.36,825.2,4.4
+H18,Without yesterday,load at this time yesterday removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",231,361.61,818.6,4.3
+H18,Without rolling,"5/15/60-min mean, std, max removed",y_peak,15,"{'objective': 'l1', 'num_leaves': 127}",350,362.29,818.96,5.4
+H18,Without long lags,"lags 15, 30, 60 removed",y_peak,21,"{'objective': 'l1', 'num_leaves': 127}",224,362.84,818.57,4.1
+H18,Without diff,the 1-minute change removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",252,363.12,818.91,4.5
+H18,Recent only,"now, lags 1-5 and diff_1 kept",y_peak,6,"{'objective': 'l1', 'num_leaves': 127}",564,367.51,830.52,6.2
+H18,Now only,the current load only,y_peak,1,"{'objective': 'l1', 'num_leaves': 127}",127,387.55,861.55,1.6
+H19,All 24 features,the reference,y_next,24,"{'objective': 'l1', 'num_leaves': 127}",753,241.44,609.84,12.6
+H19,Without calendar,"time of day, day of week, weekend flag removed",y_next,20,"{'objective': 'l1', 'num_leaves': 127}",1054,241.15,608.24,13.8
+H19,Without yesterday,load at this time yesterday removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",910,240.78,607.99,14.3
+H19,Without rolling,"5/15/60-min mean, std, max removed",y_next,15,"{'objective': 'l1', 'num_leaves': 127}",582,249.05,625.16,7.7
+H19,Without long lags,"lags 15, 30, 60 removed",y_next,21,"{'objective': 'l1', 'num_leaves': 127}",602,247.44,629.58,9.7
+H19,Without diff,the 1-minute change removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",567,241.58,610.63,9.6
+H19,Recent only,"now, lags 1-5 and diff_1 kept",y_next,6,"{'objective': 'l1', 'num_leaves': 127}",414,261.79,660.31,4.8
+H19,Now only,the current load only,y_next,1,"{'objective': 'l1', 'num_leaves': 127}",277,283.46,705.77,2.9
+H19,All 24 features,the reference,y_peak,24,"{'objective': 'l1', 'num_leaves': 127}",815,317.83,763.9,13.5
+H19,Without calendar,"time of day, day of week, weekend flag removed",y_peak,20,"{'objective': 'l1', 'num_leaves': 127}",569,317.35,769.04,8.3
+H19,Without yesterday,load at this time yesterday removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",420,317.87,768.75,6.7
+H19,Without rolling,"5/15/60-min mean, std, max removed",y_peak,15,"{'objective': 'l1', 'num_leaves': 127}",615,330.99,781.86,8.7
+H19,Without long lags,"lags 15, 30, 60 removed",y_peak,21,"{'objective': 'l1', 'num_leaves': 127}",324,324.24,784.13,6.1
+H19,Without diff,the 1-minute change removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",519,318.31,767.25,9.1
+H19,Recent only,"now, lags 1-5 and diff_1 kept",y_peak,6,"{'objective': 'l1', 'num_leaves': 127}",600,350.7,823.41,6.6
+H19,Now only,the current load only,y_peak,1,"{'objective': 'l1', 'num_leaves': 127}",188,378.69,863.13,2.2
+H20,All 24 features,the reference,y_next,24,"{'objective': 'l1', 'num_leaves': 127}",443,155.86,626.35,7.8
+H20,Without calendar,"time of day, day of week, weekend flag removed",y_next,20,"{'objective': 'l1', 'num_leaves': 127}",482,157.68,630.61,6.7
+H20,Without yesterday,load at this time yesterday removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",326,155.92,627.06,6.2
+H20,Without rolling,"5/15/60-min mean, std, max removed",y_next,15,"{'objective': 'l1', 'num_leaves': 127}",381,156.4,626.69,5.1
+H20,Without long lags,"lags 15, 30, 60 removed",y_next,21,"{'objective': 'l1', 'num_leaves': 127}",370,156.12,627.0,5.8
+H20,Without diff,the 1-minute change removed,y_next,23,"{'objective': 'l1', 'num_leaves': 127}",347,156.16,626.69,5.5
+H20,Recent only,"now, lags 1-5 and diff_1 kept",y_next,6,"{'objective': 'l1', 'num_leaves': 127}",556,160.85,632.59,6.0
+H20,Now only,the current load only,y_next,1,"{'objective': 'l1', 'num_leaves': 127}",180,173.87,644.46,2.0
+H20,All 24 features,the reference,y_peak,24,"{'objective': 'l1', 'num_leaves': 127}",292,271.49,875.05,6.0
+H20,Without calendar,"time of day, day of week, weekend flag removed",y_peak,20,"{'objective': 'l1', 'num_leaves': 127}",327,274.37,893.92,5.0
+H20,Without yesterday,load at this time yesterday removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",360,271.51,870.06,6.7
+H20,Without rolling,"5/15/60-min mean, std, max removed",y_peak,15,"{'objective': 'l1', 'num_leaves': 127}",361,271.55,876.58,5.4
+H20,Without long lags,"lags 15, 30, 60 removed",y_peak,21,"{'objective': 'l1', 'num_leaves': 127}",331,272.25,875.17,5.9
+H20,Without diff,the 1-minute change removed,y_peak,23,"{'objective': 'l1', 'num_leaves': 127}",340,272.16,870.39,6.4
+H20,Recent only,"now, lags 1-5 and diff_1 kept",y_peak,6,"{'objective': 'l1', 'num_leaves': 127}",902,273.28,899.62,9.4
+H20,Now only,the current load only,y_peak,1,"{'objective': 'l1', 'num_leaves': 127}",248,292.88,928.43,2.4

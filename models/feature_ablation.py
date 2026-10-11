@@ -27,6 +27,10 @@ Run from anywhere (the full run takes about 45-60 min on an 8 GB laptop):
     python models/feature_ablation.py --max-trees 20   # smoke test, about a minute
     python models/feature_ablation.py
     python models/feature_ablation.py --resume         # continue an interrupted run
+
+Step 16 runs the same groups and settings on StoreNet, per pre-registered house, scored on
+StoreNet validation only (results/tables/step16_ablation_per_house.csv and step16_ablation.md):
+    python models/feature_ablation.py --dataset storenet [--house H1] [--resume] [--max-trees N]
 """
 
 import os
@@ -55,6 +59,8 @@ TARGETS = ["y_next", "y_peak"]
 TUNING_LOG = ROOT / "results" / "tables" / "step08_tuning_log.csv"
 CSV_PATH = ROOT / "results" / "tables" / "step15_feature_ablation.csv"
 MD_PATH = ROOT / "results" / "tables" / "step15_feature_ablation.md"
+SN_CSV = ROOT / "results" / "tables" / "step16_ablation_per_house.csv"
+SN_MD = ROOT / "results" / "tables" / "step16_ablation.md"
 
 CALENDAR = ["tod_sin", "tod_cos", "dow", "is_weekend"]
 ROLLING = [f"{s}_{w}" for w in (5, 15, 60) for s in ("mean", "std", "max")]
@@ -111,32 +117,16 @@ def markdown(table, max_trees):
     return "\n".join(lines + ["", note]) + "\n"
 
 
-def main():
-    sys.stdout.reconfigure(errors="replace")
-    args = sys.argv[1:]
-    max_trees = int(args[args.index("--max-trees") + 1]) if "--max-trees" in args else None
-    done = pd.DataFrame()
-    if "--resume" in args and CSV_PATH.exists():
-        done = pd.read_csv(CSV_PATH)
-        print(f"Resuming: {len(done)} runs already done")
-    else:
-        CSV_PATH.unlink(missing_ok=True)
-    if max_trees:
-        train_demand.N_ESTIMATORS = max_trees
-
-    features = add_features(pd.read_parquet(DATA_PATH)).astype("float32")
-    all_features = [c for c in features.columns if c != "load_w"]
-    train, val, _ = make_splits(add_targets(features, H), H)   # test is discarded
-    del features
-    gc.collect()
-
-    rows = done.to_dict("records")
+def ablate(train, val, all_features, rows, csv_path, extra=None):
+    """Fit every run for both targets on train, score on validation; skip runs already in rows."""
+    extra = extra or {}
     for target in TARGETS:
         params = step8_setting(target)
         y_train = train[f"{target}_{H}"].to_numpy("float32")
         y_val = val[f"{target}_{H}"].to_numpy("float32")
         for name, change, cols in runs(all_features):
-            if any(r["run"] == name and r["target"] == target for r in rows):
+            if any(r["run"] == name and r["target"] == target
+                   and all(r.get(k) == v for k, v in extra.items()) for r in rows):
                 continue
             t0 = time.perf_counter()
             model = train_demand.make_model("lightgbm", params)
@@ -145,16 +135,35 @@ def main():
             pred = model.predict(val[cols].to_numpy("float32"))
             mae = float(np.mean(np.abs(pred - y_val)))
             rmse = float(np.sqrt(np.mean((pred - y_val) ** 2)))
-            rows.append({"run": name, "change": change, "target": target, "n_features": len(cols),
-                         "params": str(params), "best_n_trees": n_trees, "val_mae_w": round(mae, 2),
-                         "val_rmse_w": round(rmse, 2),
+            rows.append({**extra, "run": name, "change": change, "target": target,
+                         "n_features": len(cols), "params": str(params), "best_n_trees": n_trees,
+                         "val_mae_w": round(mae, 2), "val_rmse_w": round(rmse, 2),
                          "fit_seconds": round(time.perf_counter() - t0, 1)})
-            pd.DataFrame(rows).to_csv(CSV_PATH, index=False)
-            print(f"{target:<6} {name:<18} features={len(cols):<2} trees={n_trees:<5} "
+            pd.DataFrame(rows).to_csv(csv_path, index=False)
+            label = f"{extra['house']:<4} " if "house" in extra else ""
+            print(f"{label}{target:<6} {name:<18} features={len(cols):<2} trees={n_trees:<5} "
                   f"val MAE={mae:7.2f} W  RMSE={rmse:7.2f} W  ({rows[-1]['fit_seconds']:.0f}s)",
                   flush=True)
             del model
             gc.collect()
+    return rows
+
+
+def main_uci(args, max_trees):
+    done = pd.DataFrame()
+    if "--resume" in args and CSV_PATH.exists():
+        done = pd.read_csv(CSV_PATH)
+        print(f"Resuming: {len(done)} runs already done")
+    else:
+        CSV_PATH.unlink(missing_ok=True)
+
+    features = add_features(pd.read_parquet(DATA_PATH)).astype("float32")
+    all_features = [c for c in features.columns if c != "load_w"]
+    train, val, _ = make_splits(add_targets(features, H), H)   # test is discarded
+    del features
+    gc.collect()
+
+    rows = ablate(train, val, all_features, done.to_dict("records"), CSV_PATH)
 
     table = pd.DataFrame(rows)
     order = [r[0] for r in runs(all_features)]
@@ -165,6 +174,82 @@ def main():
     MD_PATH.write_text(md, encoding="utf-8")
     print("\n" + md)
     print(f"Saved {CSV_PATH.relative_to(ROOT)}\nSaved {MD_PATH.relative_to(ROOT)}")
+
+
+def storenet_markdown(sn, max_trees):
+    """Median change in validation MAE across houses for each run, next to the UCI change."""
+    uci = pd.read_csv(CSV_PATH)
+    houses = sn["house"].nunique()
+    run_order = [r for r in uci["run"].drop_duplicates() if r != "All 24 features"]
+    lines = ["# Step 16: feature ablation on StoreNet (H = 10, LightGBM, validation only)", "",
+             "Change in validation MAE when a feature group is removed (or only a small group "
+             "kept), relative to all 24 features. StoreNet: median across "
+             f"{houses} houses of each house's change, in W and %. UCI: the single household, from "
+             "results/tables/step15_feature_ablation.md. Validation only; no test set is used.", ""]
+    if max_trees:
+        lines += [f"SMOKE TEST ({max_trees} trees max): these numbers mean nothing.", ""]
+    for target in TARGETS:
+        u = uci[uci.target == target].set_index("run")["val_mae_w"]
+        g = sn[sn.target == target].pivot(index="house", columns="run", values="val_mae_w")
+        ref = g["All 24 features"]
+        lines += [f"## {target}", "",
+                  "| Run | UCI change (W) | UCI change (%) | StoreNet median change (W) "
+                  "| StoreNet median change (%) | Houses where MAE rises |",
+                  "|---|---|---|---|---|---|"]
+        for name in run_order:
+            d = g[name] - ref
+            ud = u[name] - u["All 24 features"]
+            lines.append(f"| {name} | {ud:+.1f} | {ud / u['All 24 features']:+.1%} "
+                         f"| {d.median():+.1f} | {(d / ref).median():+.1%} "
+                         f"| {(d > 0).sum()} of {houses} |")
+        lines.append("")
+    return "\n".join(lines) + "\n"
+
+
+def main_storenet(args, max_trees):
+    from models.replicate_storenet import STORENET_PERIODS
+    from pipeline.clean_storenet import HOUSES, OUT_DIR
+
+    houses = [args[args.index("--house") + 1]] if "--house" in args else HOUSES
+    rows = []
+    if SN_CSV.exists() and ("--resume" in args or "--house" in args):
+        rows = pd.read_csv(SN_CSV).to_dict("records")
+        if "--house" in args and "--resume" not in args:
+            rows = [r for r in rows if r["house"] not in houses]   # recompute that house
+    else:
+        SN_CSV.unlink(missing_ok=True)
+    n_runs = 0
+    for house in houses:
+        features = add_features(pd.read_parquet(OUT_DIR / f"{house}_1min.parquet")).astype("float32")
+        all_features = [c for c in features.columns if c != "load_w"]
+        n_runs = len(runs(all_features))
+        train, val, _ = make_splits(add_targets(features, H), H, periods=STORENET_PERIODS)
+        del features
+        rows = ablate(train, val, all_features, rows, SN_CSV, extra={"house": house})
+        del train, val
+        gc.collect()
+    sn = pd.DataFrame(rows)
+    complete = sn.groupby("house").size().reindex(HOUSES).fillna(0).eq(2 * n_runs)
+    if complete.all():
+        md = storenet_markdown(sn, max_trees)
+        SN_MD.write_text(md, encoding="utf-8")
+        print("\n" + md + f"\nSaved {SN_CSV.relative_to(ROOT)}\nSaved {SN_MD.relative_to(ROOT)}")
+    else:
+        print(f"Saved {SN_CSV.relative_to(ROOT)}; {int(complete.sum())} of {len(HOUSES)} houses "
+              "complete, so step16_ablation.md is not written yet")
+
+
+def main():
+    sys.stdout.reconfigure(errors="replace")
+    args = sys.argv[1:]
+    max_trees = int(args[args.index("--max-trees") + 1]) if "--max-trees" in args else None
+    if max_trees:
+        train_demand.N_ESTIMATORS = max_trees
+    if "--dataset" in args and args[args.index("--dataset") + 1] == "storenet":
+        main_storenet(args, max_trees)
+    else:
+        main_uci(args, max_trees)
+
 
 if __name__ == "__main__":
     main()

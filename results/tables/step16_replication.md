@@ -16,3 +16,13 @@ Skill vs persistence = 1 − MAE_model / MAE_persistence on each house's test se
 | 15 | y_next | XGBoost | 20.3% | 19.5% | -21.1% to 33.2% | 17 of 18 |
 | 15 | y_peak | LightGBM | 12.4% | 14.9% | 1.3% to 26.3% | 18 of 18 |
 | 15 | y_peak | XGBoost | 11.2% | 13.4% | -12.0% to 25.7% | 17 of 18 |
+
+## Replication verdict (criteria as pre-registered in docs/step16_replication.md)
+
+| Criterion | Result | Houses meeting it |
+|---|---|---|
+| R1: models beat persistence | met: lowest median skill 6.3% (XGBoost, y_peak, H = 5); H = 10 Wilcoxon p < 0.001 for all four tests. | 17 of 18 (both models beat persistence at every H and target) |
+| R2: skill grows with horizon | met: median skill 13.8% at H = 5, 19.9% at H = 15. | 15 of 18 |
+| R3: recent readings carry the accuracy | met (both targets): y_next: recent only +12.4 W vs largest single group +1.7 W (without calendar); y_peak: recent only +6.2 W vs largest single group +2.0 W (without rolling). | y_next 17 of 18; y_peak 14 of 18 |
+
+R1 is checked on all 12 median skills (2 models × 3 horizons × 2 targets) and the four H = 10 Wilcoxon tests (2 models × 2 targets). The pre-registration does not name a target for R3, so it is checked on both and counts as met only if it holds for both.
