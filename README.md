@@ -388,18 +388,74 @@ only, now only), with the Step 8 setting and procedure, and scores every run on 
 Outputs: `results/tables/step15_feature_ablation.csv` and `step15_feature_ablation.md`
 (validation MAE and its change against all 24 features).
 
+## Step 16. Replication on StoreNet
+
+```bash
+# download StoreNet (Khadem et al., 2024; https://doi.org/10.6084/m9.figshare.c.6829134, CC0)
+# and put H1_W.csv ... H20_W.csv in data/raw/storenet/
+python pipeline/clean_storenet.py                         # 18 houses -> data/processed/storenet/
+python models/replicate_storenet.py --max-trees 20        # smoke test; numbers mean nothing
+python models/replicate_storenet.py                       # 216 fits, test scored once (~1 h)
+python models/feature_ablation.py --dataset storenet      # 288 fits, validation only (~1.5 h)
+python models/replicate_storenet.py --tables-only         # replication tables + R1-R3 verdict
+```
+
+Checks whether the UCI results hold on newer data: the unchanged pipeline, with the Step 8
+settings and **no new tuning**, is run on StoreNet (20 households in Dingle, Ireland, 2020,
+1-minute; 10 with rooftop PV). UCI stays the main dataset and no Step 1–15 result changes.
+Everything was pre-registered in `docs/step16_replication.md` before any model was trained:
+
+- **Houses:** the 18 houses with at least 99% of 2020's minutes holding a valid consumption
+  value. H14 (92.25%) and H16 (96.40%) are excluded.
+- **Split:** Jan–Aug / Sep–Oct / Nov–Dec 2020.
+- **Method:** one model per house; each house's test set scored once.
+- **Criteria:** R1 (models beat persistence), R2 (skill grows with horizon) and R3 (recent
+  readings carry the accuracy).
+
+Cleaning reads the `Consumption(W)` column and reindexes to calendar 2020. It treats runs of
+60 or more minutes at exactly 0 W as missing, then fills gaps of 5 minutes or less as for UCI.
+Most of those zero runs are logging artifacts: almost every house reads 0 W for about a day
+on the 5th of each month from January to May, and again on 28–30 April. The timestamps have no
+daylight-saving jumps and are consistent with a fixed clock close to UTC.
+
+Outputs:
+
+- `results/tables/step16_storenet_summary.md`: data summary per house, with UCI for comparison
+- `step16_storenet_per_house.csv`: every house, H, target and predictor
+- `step16_replication.md`: UCI skill next to StoreNet median and min–max skill, plus the R1–R3
+  verdict
+- `step16_replication_tests.md`: Wilcoxon tests across houses
+- `step16_ablation.md` and `step16_ablation_per_house.csv`
+- `results/figures/step16_skill_by_horizon.png`
+
+`tests/test_storenet.py` checks the cleaned files and the split. Its file tests are skipped
+when the data is missing.
+
+**Result: all three criteria are met.**
+
+- **R1:** both models beat persistence in median skill at every H and target; the lowest is
+  6.3% (XGBoost, `y_peak`, H = 5). All four H = 10 Wilcoxon tests give p < 0.001, and 17 of 18
+  houses beat persistence everywhere.
+- **R2:** median LightGBM `y_next` skill rises from 13.8% at H = 5 to 19.9% at H = 15.
+- **R3:** at H = 10, "recent only" raises median validation MAE by 12.4 W (`y_next`) and
+  6.2 W (`y_peak`), more than removing any single feature group (at most 1.7 and 2.0 W).
+
+The median StoreNet skill is close to UCI's: for example 19.4% vs 18.8% for LightGBM
+`y_next` at H = 10.
+
 ## Step 13. Reproduce every table and figure with one command
 
 ```bash
 pip install -r requirements.txt
 # place data/raw/household_power_consumption.txt first (Step 1)
-python run_initial_results.py --skip-training   # reuse the 12 saved models: about an hour
-python run_initial_results.py                   # retrain too: about 2.5 h on an 8 GB laptop
+python run_initial_results.py --skip-training   # reuse the 12 saved models: about 3-4 h
+python run_initial_results.py                   # retrain too: about 5-6 h on an 8 GB laptop
 ```
 
 `run_initial_results.py` runs Steps 2, 3, 6, 7, 8, 9, 10, 11, 12 (all three scenarios and the
-switching sensitivity), 14 and 15 in order and stops at the first failure. The Step 15
-ablation retrains 16 models and takes most of the hour. It rebuilds everything in `results/tables/` and `results/figures/`, plus
+switching sensitivity), 14, 15 and 16 in order and stops at the first failure. Step 16 is
+skipped with a message if `data/raw/storenet/` is missing. Most of the time goes to model
+fits: 16 in Step 15, and 216 + 288 in Step 16. It rebuilds everything in `results/tables/` and `results/figures/`, plus
 `results/handoff/` and `data/processed/`. The test set is only re-scored with the frozen
 models and settings, so nothing is tuned. Checked on 2026-10-06, and again on 2026-10-07 with the scenarios, from an empty
 `data/processed/` with `--skip-training`: every committed table and figure came out
@@ -433,6 +489,10 @@ python sim/run_policies.py --scenario sunset_full
 python sim/run_policies.py --switching
 python models/daily_tests.py
 python models/feature_ablation.py
+python pipeline/clean_storenet.py
+python models/replicate_storenet.py
+python models/feature_ablation.py --dataset storenet
+python models/replicate_storenet.py --tables-only
 ```
 
 ## Files that make up the study
@@ -456,7 +516,11 @@ python models/feature_ablation.py
 | `sim/solar_model.py`, `sim/replay.py` | Step 12.2: modeled solar; demand replay on the zones |
 | `sim/battery.py`, `sim/run_policies.py` | Step 12.3: battery model; four-policy simulation (Table 4.3) |
 | `models/daily_tests.py` | Step 14: day-level tests, effect sizes and bootstrap CIs for Step 12 |
-| `models/feature_ablation.py` | Step 15: feature ablation of the H = 10 LightGBM models on validation |
+| `models/feature_ablation.py` | Step 15: feature ablation of the H = 10 LightGBM models on validation (and Step 16 on StoreNet) |
+| `docs/step16_replication.md` | Step 16: pre-registered houses, split, method and criteria |
+| `pipeline/clean_storenet.py` | Step 16: StoreNet households -> UCI-format 1-minute files |
+| `models/replicate_storenet.py` | Step 16: replication on StoreNet, R1 tests and verdict |
+| `tests/test_storenet.py` | Step 16: cleaned StoreNet files and split periods |
 | `docs/step12_scenarios.md` | Step 12: pre-registered scenarios, feasibility check and comparisons |
 | `tests/test_sim.py` | Step 12: simulator tests on a hand-made 2-day input |
 | `tests/test_leakage.py`, `tests/test_split.py` | Step 5: leakage and split proofs |

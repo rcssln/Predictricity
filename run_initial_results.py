@@ -1,13 +1,14 @@
 """Reproduce every table and figure in results/ with one command (Step 13).
 
-Runs Steps 2, 3, 6, 7, 8, 9, 10, 11, 12, 14 and 15 in order, each as its own script. Needs
+Runs Steps 2, 3, 6, 7, 8, 9, 10, 11, 12, 14, 15 and 16 in order, each as its own script. Needs
 data/raw/household_power_consumption.txt (Step 1) and the packages in requirements.txt.
+Step 16 (the StoreNet replication) needs data/raw/storenet/ and is skipped without it.
 
     python run_initial_results.py                   # everything, retraining included
                                                     # (about 2.5 hours on an 8 GB laptop)
     python run_initial_results.py --skip-training   # reuse the 12 saved models in
-                                                    # models/artifacts/ (about an hour, most
-                                                    # of it the Step 15 feature ablation)
+                                                    # models/artifacts/ (about 3-4 hours, most
+                                                    # of it the Step 15 and 16 model fits)
 
 The test set is only re-scored with the frozen models and settings, so a run reproduces
 the committed numbers; it does not tune anything.
@@ -21,6 +22,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 RAW = ROOT / "data" / "raw" / "household_power_consumption.txt"
+STORENET_RAW = ROOT / "data" / "raw" / "storenet"
 ARTIFACTS = [ROOT / "models" / "artifacts" / f"{algo}_{target}_{H}.joblib"
              for algo in ("lightgbm", "xgboost") for target in ("y_next", "y_peak")
              for H in (5, 10, 15)]
@@ -45,6 +47,11 @@ STEPS = [
     ("12", "Switching sensitivity on scenario B", ["sim/run_policies.py", "--switching"]),
     ("14", "Day-level tests, effect sizes and bootstrap CIs", ["models/daily_tests.py"]),
     ("15", "Feature ablation on validation (about 45-60 min)", ["models/feature_ablation.py"]),
+    ("16", "Clean StoreNet", ["pipeline/clean_storenet.py"]),
+    ("16", "Replication on StoreNet (216 fits, about 1 h)", ["models/replicate_storenet.py"]),
+    ("16", "Feature ablation on StoreNet (288 fits)",
+     ["models/feature_ablation.py", "--dataset", "storenet"]),
+    ("16", "Replication tables and R1-R3 verdict", ["models/replicate_storenet.py", "--tables-only"]),
 ]
 
 
@@ -61,6 +68,10 @@ def main():
     for step, name, cmd in STEPS:
         if step == "8" and skip_training:
             print(f"\n=== Step {step}: {name} - skipped (--skip-training, saved models used)")
+            continue
+        if step == "16" and not STORENET_RAW.exists():
+            print(f"\n=== Step {step}: {name} - skipped: data/raw/storenet/ is missing "
+                  "(download StoreNet from https://doi.org/10.6084/m9.figshare.c.6829134)")
             continue
         print(f"\n=== Step {step}: {name}  (python {' '.join(cmd)})", flush=True)
         t0 = time.perf_counter()
