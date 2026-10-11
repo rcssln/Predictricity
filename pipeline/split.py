@@ -34,14 +34,15 @@ PERIODS = {
 }
 
 
-def make_splits(data: pd.DataFrame, H: int):
+def make_splits(data: pd.DataFrame, H: int, periods: dict = PERIODS):
     """Split features+targets on a strict 1-minute index into (train, val, test).
 
     Trimming happens on the full minute grid, before missing rows are dropped,
     so "last H rows" always means the last H minutes of the period.
+    periods maps "train", "val", "test" to (start, end); the default is the UCI dates.
     """
     parts = {}
-    for name, (start, end) in PERIODS.items():
+    for name, (start, end) in periods.items():
         part = data.loc[start:end]
         if name != "test":
             part = part.iloc[:-H] if H > 0 else part
