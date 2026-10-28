@@ -30,7 +30,6 @@ from pipeline.targets import add_targets  # noqa: E402
 OUT_PATH = ROOT / "results" / "tables" / "step07_baselines_val.csv"
 HORIZONS = [5, 10, 15]
 
-
 def baseline_predictions(d, H):
     return {
         "persistence": d["now"],

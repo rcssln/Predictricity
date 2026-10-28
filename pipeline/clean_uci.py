@@ -23,7 +23,6 @@ OUT_PATH = ROOT / "data" / "processed" / "uci_1min.parquet"
 
 MAX_GAP_MIN = 5
 
-
 def fill_short_gaps(s, max_gap):
     """Interpolate only NaN runs of length <= max_gap that have data on both sides.
 
@@ -36,7 +35,6 @@ def fill_short_gaps(s, max_gap):
     short_gap = is_na & (run_len <= max_gap)
     filled = s.interpolate(limit_area="inside")
     return s.where(~short_gap, filled)
-
 
 def main():
     raw = pd.read_csv(IN_PATH, sep=";", na_values=["?", ""], low_memory=False)
@@ -70,7 +68,6 @@ def main():
     print(f"Filled (gaps <= {MAX_GAP_MIN} min):      {before - after:,}")
     print(f"Left empty (longer gaps):    {after:,}")
     print(f"\n{df['load_w'].describe().to_string()}")
-
 
 if __name__ == "__main__":
     main()

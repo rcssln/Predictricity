@@ -199,7 +199,6 @@ def verdict(per_house):
               "holds for both."]
     return "\n".join(lines)
 
-
 def summary_tables(per_house):
     uci = pd.read_csv(UCI_TABLE).set_index(["H", "target", "model"])["skill_vs_persistence"]
     n = per_house["house"].nunique()
@@ -245,7 +244,6 @@ def summary_tables(per_house):
     TESTS.write_text("\n".join(t) + "\n", encoding="utf-8")
     return "\n".join(lines), "\n".join(t)
 
-
 def figure(per_house):
     uci = pd.read_csv(UCI_TABLE).set_index(["H", "target", "model"])["skill_vs_persistence"]
     fig, axes = plt.subplots(1, 2, figsize=(11, 4.4), sharey=True)
@@ -272,7 +270,6 @@ def figure(per_house):
     FIGURE.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(FIGURE, dpi=200, bbox_inches="tight", facecolor="white")
     plt.close(fig)
-
 
 def main():
     sys.stdout.reconfigure(errors="replace")
@@ -307,7 +304,6 @@ def main():
     print("\n" + rep + "\n\n" + tests)
     for p in (PER_HOUSE, REPLICATION, TESTS, FIGURE):
         print(f"Saved {p.relative_to(ROOT)}")
-
 
 if __name__ == "__main__":
     main()

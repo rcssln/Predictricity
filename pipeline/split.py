@@ -33,7 +33,6 @@ PERIODS = {
     "test": ("2010-07-01", "2010-11-30 23:59"),
 }
 
-
 def make_splits(data: pd.DataFrame, H: int, periods: dict = PERIODS):
     """Split features+targets on a strict 1-minute index into (train, val, test).
 
@@ -49,11 +48,9 @@ def make_splits(data: pd.DataFrame, H: int, periods: dict = PERIODS):
         parts[name] = part.dropna()
     return parts["train"], parts["val"], parts["test"]
 
-
 def build_dataset(H: int) -> pd.DataFrame:
     load = pd.read_parquet(DATA_PATH)
     return add_targets(add_features(load), H)
-
 
 def main(H: int = 10):
     data = build_dataset(H)
@@ -66,7 +63,6 @@ def main(H: int = 10):
         print(f"{name:<6} {len(part):>10,}   {str(part.index[0]):<20} {str(part.index[-1]):<20}")
     total = len(train) + len(val) + len(test)
     print(f"{'total':<6} {total:>10,}   ({len(data) - total:,} of {len(data):,} rows dropped)")
-
 
 if __name__ == "__main__":
     main(int(sys.argv[1]) if len(sys.argv) > 1 else 10)
